@@ -66,7 +66,7 @@ export default function LoginPage() {
 
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-800 mt-2">
           {isRegistering
-            ? "Registro de Vehículos"
+            ? "Registro de usuario"
             : isRecovering
             ? "Recuperar Contraseña"
             : "Iniciar sesión"}
@@ -202,7 +202,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition duration-200"
+            className="w-full bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-[#134B70] transition duration-200"
           >
             {isRegistering
               ? "Registrarse"
