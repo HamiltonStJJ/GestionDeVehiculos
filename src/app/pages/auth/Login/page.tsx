@@ -1,6 +1,4 @@
-// pages/login.tsx
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -22,34 +20,77 @@ export default function LoginPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!email || !password) {
+    // Validación solo en modo recuperación de contraseña
+    if (isRecovering && !email) {
+      setError("Por favor, ingresa tu correo electrónico.");
+      return;
+    }
+
+    // Validación en los demás modos (login y registro)
+    if (!isRecovering && (!email || (!password && !isRegistering))) {
       setError("Por favor, rellena todos los campos.");
       return;
     }
 
     try {
+      let response;
+
       if (isRegistering) {
-        // Simulación de registro
-        console.log({
-          cedula,
-          nombre,
-          apellido,
-          direccion,
-          telefono,
-          email,
-          password,
+        // Realizamos una solicitud POST al endpoint de registro
+        response = await fetch("http://localhost:8080/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cedula,
+            nombre,
+            apellido,
+            direccion,
+            telefono,
+            email,
+            password,
+          }),
         });
-        setError("Registro completado exitosamente (simulado).");
       } else if (isRecovering) {
-        // Simulación de recuperación de contraseña
-        setError("Correo de recuperación enviado (simulado).");
-      } else if (email === "test@example.com" && password === "password") {
-        router.push("pages/customer");
+        // Realizamos una solicitud POST al endpoint de recuperación de contraseña
+        response = await fetch("http://localhost:8080/auth/forgot", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+          }),
+        });
       } else {
-        setError("Credenciales incorrectas.");
+        // Realizamos una solicitud POST al endpoint de login
+        response = await fetch("http://localhost:8080/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+        if (!isRegistering && !isRecovering) {
+          // Suponiendo que el token de sesión se maneja con cookies
+          router.push("pages/customer");
+        } else {
+          setError("Correo de recuperación enviado con éxito.");
+        }
+      } else {
+        setError("Hubo un error. Por favor, verifica los datos e inténtalo de nuevo.");
       }
     } catch (err) {
-      setError("Ocurrió un error en el login.");
+      console.error(err);
+      setError("Ocurrió un error en la solicitud.");
     }
   };
 
@@ -58,7 +99,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md p-4">
         <div className="flex justify-center mb-2">
           <img
-            src="images/carmini.svg" 
+            src="/images/carmini.svg" 
             alt="Vehículos"
             className="w-1/2 h-auto" 
           />
