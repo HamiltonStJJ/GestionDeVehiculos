@@ -86,7 +86,9 @@ export default function LoginPage() {
           setError("Correo de recuperación enviado con éxito.");
         }
       } else {
-        setError("Hubo un error. Por favor, verifica los datos e inténtalo de nuevo.");
+        setError(
+          "Hubo un error. Por favor, verifica los datos e inténtalo de nuevo."
+        );
       }
     } catch (err) {
       console.error(err);
@@ -99,19 +101,30 @@ export default function LoginPage() {
       <div className="w-full max-w-md p-4">
         <div className="flex justify-center mb-2">
           <img
-            src="/images/carmini.svg" 
+            src="/images/carmini.svg"
             alt="Vehículos"
-            className="w-1/2 h-auto" 
+            className="w-1/2 h-auto"
           />
-        </div>  
+        </div>
 
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800 mt-2">
+        {/* Nombre del programa FlexiDrive */}
+        <h1
+          className="text-4xl font-light mb-4 text-center text-[#201E43] tracking-wider mt-1"
+          style={{
+            fontFamily: "'Roboto', sans-serif",
+            color: "#201E43",
+          }}
+        >
+          FlexiDrive
+        </h1>
+
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 mt-2">
           {isRegistering
             ? "Registro de usuario"
             : isRecovering
             ? "Recuperar Contraseña"
             : "Iniciar sesión"}
-        </h1>
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {isRegistering && (
@@ -262,7 +275,7 @@ export default function LoginPage() {
               ? "¿Ya tienes cuenta? Iniciar sesión"
               : "¿No tienes cuenta? Registrarse"}
           </button>
-          <br /> 
+          <br />
           {!isRegistering && (
             <button
               className="text-gray-600 underline text-sm hover:text-[#4A628A] transition duration-200 mt-5"
