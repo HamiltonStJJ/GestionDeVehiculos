@@ -7,7 +7,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md p-4">
         <div className="flex justify-center mb-2">
           <img
-            src="/images/carmini.svg"
+            src="/images/carmini2.svg"
             alt="Vehículos"
             className="w-1/2 h-auto"
           />

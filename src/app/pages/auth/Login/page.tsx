@@ -8,7 +8,7 @@ export default function LoginPage() {
         {/* Imagen de encabezado */}
         <div className="flex justify-center mb-2">
           <img
-            src="/images/carmini.svg"
+            src="/images/carmini2.svg"
             alt="Vehículos"
             className="w-1/2 h-auto"
           />
@@ -35,7 +35,7 @@ export default function LoginPage() {
         <div className="mt-4 text-center">
           <Link
             href="pages/auth/register"
-            className="text-gray-600 underline text-sm hover:text-[#4A628A] transition duration-200"
+            className="text-gray-600 underline text-sm hover:text-[#4A628A] transition duration-200 "
           >
             ¿No tienes cuenta? Registrarse
           </Link>
