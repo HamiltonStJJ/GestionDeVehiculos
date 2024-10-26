@@ -1,0 +1,41 @@
+    "use client";
+
+import { useState } from "react";
+import { register } from "@/services/authService";
+import InputField from "@/components/InputField";
+import AuthButton from "@/components/AuthButton";
+
+export default function RegisterForm() {
+  const [cedula, setCedula] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      await register({ cedula, nombre, apellido, direccion, telefono, email, password });
+      alert("Registro completado con éxito.");
+    } catch (err) {
+      setError("Hubo un error en el registro.");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <InputField label="Cédula" type="text" value={cedula} onChange={(e) => setCedula(e.target.value)} placeholder="Cédula" />
+      <InputField label="Nombre" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" />
+      <InputField label="Apellido" type="text" value={apellido} onChange={(e) => setApellido(e.target.value)} placeholder="Apellido" />
+      <InputField label="Dirección" type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Dirección" />
+      <InputField label="Teléfono" type="text" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="Teléfono" />
+      <InputField label="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
+      <InputField label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <AuthButton text="Registrarse" onClick={()=>handleSubmit} />
+    </form>
+  );
+}
