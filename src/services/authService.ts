@@ -1,11 +1,14 @@
 import { apiRequest } from "./apiClient";
 
 export async function login(email: string, password: string) {
-  return apiRequest("/auth/login", {
+  const response = await apiRequest("/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
+    credentials: "include",
   });
+
+  return response;
 }
 
 export async function register(data: {

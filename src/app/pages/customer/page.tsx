@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface Vehicle {
-  id: number;
+  _id: string;
   nombre: string;
   marca: string;
   modelo: string;
@@ -17,81 +17,38 @@ interface Vehicle {
   transmision: string;
   numeroPuertas: number;
   estado: string;
-  ultimoChequeo: string;
-  image: string;
+  UltimoChequeo: string;
+  imagen: string;
 }
 
-const vehiclesData: Vehicle[] = [
-  {
-    id: 1,
-    nombre: "Toyota Corolla",
-    marca: "Toyota",
-    modelo: "Corolla",
-    anio: 2022,
-    color: "Rojo",
-    placa: "ABC123",
-    precio: 20000,
-    kilometrage: 15000,
-    tipoCombustible: "Gasolina",
-    transmision: "Automática",
-    numeroPuertas: 4,
-    estado: "Disponible",
-    ultimoChequeo: "2024-09-15T00:00:00.000Z",
-    image: "https://via.placeholder.com/200",
-  },
-  {
-    id: 2,
-    nombre: "Honda CR-V",
-    marca: "Honda",
-    modelo: "CR-V",
-    anio: 2021,
-    color: "Azul",
-    placa: "XYZ789",
-    precio: 25000,
-    kilometrage: 12000,
-    tipoCombustible: "Diésel",
-    transmision: "Automática",
-    numeroPuertas: 4,
-    estado: "Alquilado",
-    ultimoChequeo: "2024-10-01T00:00:00.000Z",
-    image: "https://via.placeholder.com/200",
-  },
-  {
-    id: 3,
-    nombre: "Ford Mustang",
-    marca: "Ford",
-    modelo: "Mustang",
-    anio: 2020,
-    color: "Negro",
-    placa: "LMN456",
-    precio: 30000,
-    kilometrage: 8000,
-    tipoCombustible: "Gasolina",
-    transmision: "Manual",
-    numeroPuertas: 2,
-    estado: "Disponible",
-    ultimoChequeo: "2024-08-20T00:00:00.000Z",
-    image: "https://via.placeholder.com/200",
-  },
-];
-
 const Customer: React.FC = () => {
-  const [vehicles, setVehicles] = useState<Vehicle[]>(vehiclesData);
-  const [filteredVehicles, setFilteredVehicles] =
-    useState<Vehicle[]>(vehiclesData);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [filterBrand, setFilterBrand] = useState<string>("Todas");
   const [filterPrice, setFilterPrice] = useState<number>(0);
   const [filterAvailability, setFilterAvailability] = useState<string>("Todos");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
-  /*useEffect(() => {
-    applyFilters();
-  }, [filterBrand, filterPrice, filterAvailability]);
-  */
-  // Obtener marcas únicas a partir de los datos
-  const uniqueBrands = Array.from(
-    new Set(vehicles.map((vehicle) => vehicle.marca))
-  );
+  useEffect(() => {
+    // Cargar datos de la API al montar el componente
+    fetch("http://localhost:8080/cars", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // Esto envía las cookies con la solicitud, si es necesario para autenticación
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setVehicles(data);
+        setFilteredVehicles(data);
+      })
+      .catch((error) => {
+        console.error("Error al cargar los datos:", error);
+      });
+  }, []);
+
+  const uniqueBrands = Array.from(new Set(vehicles.map((vehicle) => vehicle.marca)));
 
   const applyFilters = () => {
     let filtered = vehicles;
@@ -144,12 +101,12 @@ const Customer: React.FC = () => {
         </select>
 
         <input
-          type="text" // Cambia a "text" para ocultar las flechas
-          placeholder="Precio Máximo (ej. 20000)" // Añade un placeholder descriptivo
+          type="text"
+          placeholder="Precio Máximo (ej. 20000)"
           value={filterPrice}
           onChange={(e) =>
             setFilterPrice(Number(e.target.value.replace(/\D/g, "")))
-          } // Permite solo números
+          }
           className="p-2 border rounded-lg text-gray-800 bg-white"
         />
 
@@ -164,7 +121,7 @@ const Customer: React.FC = () => {
         </select>
 
         <button
-          onClick={applyFilters} // Llama a `applyFilters` al hacer clic
+          onClick={applyFilters}
           className="bg-black text-white px-4 py-2 rounded-lg hover:bg-[#201E43] transition duration-200"
         >
           Filtrar
@@ -176,7 +133,7 @@ const Customer: React.FC = () => {
         {filteredVehicles.length > 0 ? (
           filteredVehicles.map((vehicle) => (
             <div
-              key={vehicle.id}
+              key={vehicle._id}
               className="bg-white p-4 rounded-lg shadow-md text-center relative hover:shadow-lg transition-shadow duration-200"
             >
               <h2 className="text-lg font-bold text-gray-800">
@@ -184,7 +141,7 @@ const Customer: React.FC = () => {
               </h2>
               <p className="text-sm text-gray-600">{vehicle.marca}</p>
               <img
-                src={vehicle.image}
+                src={vehicle.imagen}
                 alt={vehicle.nombre}
                 className="w-full h-48 object-cover rounded-lg my-4"
               />
@@ -222,7 +179,7 @@ const Customer: React.FC = () => {
             </h2>
             <div className="flex justify-center mb-4">
               <img
-                src={selectedVehicle.image}
+                src={selectedVehicle.imagen}
                 alt={selectedVehicle.nombre}
                 className="w-96 h-56 object-cover rounded-lg"
               />
@@ -267,7 +224,7 @@ const Customer: React.FC = () => {
               </p>
               <p className="text-gray-700">
                 <strong>Último Chequeo:</strong>{" "}
-                {new Date(selectedVehicle.ultimoChequeo).toLocaleDateString()}
+                {new Date(selectedVehicle.UltimoChequeo).toLocaleDateString()}
               </p>
             </div>
           </div>
