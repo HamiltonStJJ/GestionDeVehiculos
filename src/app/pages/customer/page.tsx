@@ -1,70 +1,111 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface Vehicle {
   id: number;
-  name: string;
-  type: string;
-  price: number;
-  available: boolean;
+  nombre: string;
+  marca: string;
+  modelo: string;
+  anio: number;
+  color: string;
+  placa: string;
+  precio: number;
+  kilometrage: number;
+  tipoCombustible: string;
+  transmision: string;
+  numeroPuertas: number;
+  estado: string;
+  ultimoChequeo: string;
   image: string;
-  description: string;
-  technicalDetails: string; // Nueva propiedad para detalles técnicos
-  conditions: string; // Nueva propiedad para condiciones
 }
 
 const vehiclesData: Vehicle[] = [
   {
     id: 1,
-    name: "Carro A",
-    type: "SUV",
-    price: 20000,
-    available: true,
-    image: "https://www.kia.com/content/dam/kwcms/gt/en/images/discover-kia/voice-search/parts-80-1.jpg",
-    description: "Un SUV cómodo y espacioso ideal para familias.",
-    technicalDetails: "Motor V6, 300 HP, 0-100 en 6.5s", // Detalles técnicos de ejemplo
-    conditions: "Se requiere depósito y tarjeta de crédito al recoger el vehículo.", // Condiciones de ejemplo
+    nombre: "Toyota Corolla",
+    marca: "Toyota",
+    modelo: "Corolla",
+    anio: 2022,
+    color: "Rojo",
+    placa: "ABC123",
+    precio: 20000,
+    kilometrage: 15000,
+    tipoCombustible: "Gasolina",
+    transmision: "Automática",
+    numeroPuertas: 4,
+    estado: "Disponible",
+    ultimoChequeo: "2024-09-15T00:00:00.000Z",
+    image: "https://via.placeholder.com/200",
   },
   {
     id: 2,
-    name: "Carro B",
-    type: "Sedán",
-    price: 15000,
-    available: false,
-    image: "https://th.bing.com/th/id/OIP.Tsv4QM-Gepti9zC3Fyk8fgHaEo?rs=1&pid=ImgDetMain",
-    description: "Económico y de gran rendimiento de combustible.",
-    technicalDetails: "Motor I4, 150 HP, 0-100 en 9.0s", // Detalles técnicos de ejemplo
-    conditions: "No se permiten mascotas en el vehículo.", // Condiciones de ejemplo
+    nombre: "Honda CR-V",
+    marca: "Honda",
+    modelo: "CR-V",
+    anio: 2021,
+    color: "Azul",
+    placa: "XYZ789",
+    precio: 25000,
+    kilometrage: 12000,
+    tipoCombustible: "Diésel",
+    transmision: "Automática",
+    numeroPuertas: 4,
+    estado: "Alquilado",
+    ultimoChequeo: "2024-10-01T00:00:00.000Z",
+    image: "https://via.placeholder.com/200",
   },
-  // Agrega más vehículos con descripciones adicionales...
+  {
+    id: 3,
+    nombre: "Ford Mustang",
+    marca: "Ford",
+    modelo: "Mustang",
+    anio: 2020,
+    color: "Negro",
+    placa: "LMN456",
+    precio: 30000,
+    kilometrage: 8000,
+    tipoCombustible: "Gasolina",
+    transmision: "Manual",
+    numeroPuertas: 2,
+    estado: "Disponible",
+    ultimoChequeo: "2024-08-20T00:00:00.000Z",
+    image: "https://via.placeholder.com/200",
+  },
 ];
 
 const Customer: React.FC = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>(vehiclesData);
-  const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>(vehiclesData);
-  const [filterType, setFilterType] = useState<string>("All");
+  const [filteredVehicles, setFilteredVehicles] =
+    useState<Vehicle[]>(vehiclesData);
+  const [filterBrand, setFilterBrand] = useState<string>("Todas");
   const [filterPrice, setFilterPrice] = useState<number>(0);
-  const [filterAvailability, setFilterAvailability] = useState<string>("All");
+  const [filterAvailability, setFilterAvailability] = useState<string>("Todos");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
-  useEffect(() => {
+  /*useEffect(() => {
     applyFilters();
-  }, [filterType, filterPrice, filterAvailability]);
+  }, [filterBrand, filterPrice, filterAvailability]);
+  */
+  // Obtener marcas únicas a partir de los datos
+  const uniqueBrands = Array.from(
+    new Set(vehicles.map((vehicle) => vehicle.marca))
+  );
 
   const applyFilters = () => {
     let filtered = vehicles;
 
-    if (filterType !== "All") {
-      filtered = filtered.filter((vehicle) => vehicle.type === filterType);
+    if (filterBrand !== "Todas") {
+      filtered = filtered.filter((vehicle) => vehicle.marca === filterBrand);
     }
 
     if (filterPrice > 0) {
-      filtered = filtered.filter((vehicle) => vehicle.price <= filterPrice);
+      filtered = filtered.filter((vehicle) => vehicle.precio <= filterPrice);
     }
 
-    if (filterAvailability === "Available") {
-      filtered = filtered.filter((vehicle) => vehicle.available);
+    if (filterAvailability === "Disponible") {
+      filtered = filtered.filter((vehicle) => vehicle.estado === "Disponible");
     }
 
     setFilteredVehicles(filtered);
@@ -79,84 +120,87 @@ const Customer: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-100 p-6">
-      <h1 className="text-3xl font-bold text-center text-black-900 mb-6">Catálogo de Vehículos</h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
+        Catálogo de Vehículos
+      </h1>
+      <p className="text-center text-gray-700 mb-8">
+        Explora los vehículos disponibles para alquilar
+      </p>
 
       {/* Filtros */}
-      <div className="filters flex justify-around mb-6 p-4 bg-white rounded-lg shadow-md">
-        <div>
-          <label className="mr-2 font-bold">Tipo de Vehículo:</label>
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="p-2 border rounded-lg"
-          >
-            <option value="All">Todos</option>
-            <option value="SUV">SUV</option>
-            <option value="Sedán">Sedán</option>
-          </select>
-        </div>
+      <div className="filters flex flex-wrap justify-center gap-4 mb-8">
+        <select
+          value={filterBrand}
+          onChange={(e) => setFilterBrand(e.target.value)}
+          className="p-2 border rounded-lg text-gray-800 bg-white"
+        >
+          <option value="Todas">Todas las marcas</option>
+          {uniqueBrands.map((brand) => (
+            <option key={brand} value={brand}>
+              {brand}
+            </option>
+          ))}
+        </select>
 
-        <div>
-          <label className="mr-2 font-bold">Precio Máximo:</label>
-          <input
-            type="string"
-            value={filterPrice}
-            onChange={(e) => setFilterPrice(Number(e.target.value))}
-            className="p-2 border rounded-lg"
-          />
-        </div>
+        <input
+          type="text" // Cambia a "text" para ocultar las flechas
+          placeholder="Precio Máximo (ej. 20000)" // Añade un placeholder descriptivo
+          value={filterPrice}
+          onChange={(e) =>
+            setFilterPrice(Number(e.target.value.replace(/\D/g, "")))
+          } // Permite solo números
+          className="p-2 border rounded-lg text-gray-800 bg-white"
+        />
 
-        <div>
-          <label className="mr-2 font-bold">Disponibilidad:</label>
-          <select
-            value={filterAvailability}
-            onChange={(e) => setFilterAvailability(e.target.value)}
-            className="p-2 border rounded-lg"
-          >
-            <option value="All">Todos</option>
-            <option value="Available">Disponible</option>
-          </select>
-        </div>
+        <select
+          value={filterAvailability}
+          onChange={(e) => setFilterAvailability(e.target.value)}
+          className="p-2 border rounded-lg text-gray-800 bg-white"
+        >
+          <option value="Todos">Todos los estados</option>
+          <option value="Disponible">Disponible</option>
+          <option value="Alquilado">Alquilado</option>
+        </select>
+
+        <button
+          onClick={applyFilters} // Llama a `applyFilters` al hacer clic
+          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-[#201E43] transition duration-200"
+        >
+          Filtrar
+        </button>
       </div>
 
       {/* Lista de vehículos filtrados */}
-      <div className="vehicles grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredVehicles.length > 0 ? (
           filteredVehicles.map((vehicle) => (
             <div
               key={vehicle.id}
-              className="vehicle-item relative bg-white p-4 rounded-lg shadow-md text-center"
+              className="bg-white p-4 rounded-lg shadow-md text-center relative hover:shadow-lg transition-shadow duration-200"
             >
-              {/* Pestaña "Más info" */}
-              <button
-                onClick={() => openModal(vehicle)}
-                className="absolute top-0 right-0 m-2 bg-blue-500 text-white py-1 px-2 rounded-bl-lg shadow-lg hover:bg-blue-600"
-              >
-                Más info
-              </button>
-
+              <h2 className="text-lg font-bold text-gray-800">
+                {vehicle.nombre}
+              </h2>
+              <p className="text-sm text-gray-600">{vehicle.marca}</p>
               <img
                 src={vehicle.image}
-                alt={vehicle.name}
-                className="vehicle-image w-full h-48 object-cover rounded-lg mb-4"
+                alt={vehicle.nombre}
+                className="w-full h-48 object-cover rounded-lg my-4"
               />
-              <div className="space-y-2">
-                <h2 className="text-lg font-bold">{vehicle.name}</h2>
-                <p className="text-m font-sans">Tipo: {vehicle.type}</p>
-                <p className="text-m font-sans">Precio: ${vehicle.price}</p>
-                <p
-                  className={`text-sm font-bold ${
-                    vehicle.available ? "text-green-500" : "text-red-500"
-                  }`}
-                >
-                  {vehicle.available ? "Disponible" : "Alquilado"}
-                </p>
-              </div>
+              <p className="text-xl font-bold text-gray-900">
+                ${vehicle.precio} al día
+              </p>
+              <button
+                onClick={() => openModal(vehicle)}
+                className="bg-black text-white w-full py-2 mt-4 rounded-lg hover:bg-[#201E43] transition duration-200"
+              >
+                Reservar Ahora
+              </button>
             </div>
           ))
         ) : (
-          <p className="no-vehicles text-center text-red-500 font-bold">
+          <p className="text-center text-red-500 font-bold">
             No hay vehículos que coincidan con los filtros seleccionados.
           </p>
         )}
@@ -166,7 +210,6 @@ const Customer: React.FC = () => {
       {selectedVehicle && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative">
-            {/* Botón "X" para cerrar el modal */}
             <button
               onClick={closeModal}
               className="absolute top-2 right-2 text-2xl font-bold text-gray-600 hover:text-red-600"
@@ -174,39 +217,58 @@ const Customer: React.FC = () => {
               &times;
             </button>
 
-             {/* Contenedor para centrar el nombre */}
-  <div className="flex justify-center mb-4">
-    <h2 className="text-2xl font-bold">{selectedVehicle.name}</h2>
-  </div>
-
-          
-  
-  {/* Contenedor para centrar la imagen */}
-  <div className="flex justify-center mb-4">
-    <img
-      src={selectedVehicle.image}
-      alt={selectedVehicle.name}
-      className="w-96 h-56 object-cover rounded-lg"
-    />
-  </div>
-  
-            <hr className="my-2" />
-
-            {/* Sección de Detalles Técnicos */}
-            <div className="mb-4">
-              <h3 className="text-xl font-semibold mb-2">Detalles Técnicos</h3>
-              <p className="mb-2"><strong>Tipo:</strong> {selectedVehicle.type}</p>
-              <p className="mb-2"><strong>Precio:</strong> ${selectedVehicle.price}</p>
-              <p className="mb-2"><strong>Disponibilidad:</strong> {selectedVehicle.available ? "Disponible" : "Alquilado"}</p>
-              <p className="mb-2"><strong>Descripción:</strong> {selectedVehicle.description}</p>
-              <p className="mb-2"><strong>Detalles técnicos:</strong> {selectedVehicle.technicalDetails}</p>
+            <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">
+              {selectedVehicle.nombre}
+            </h2>
+            <div className="flex justify-center mb-4">
+              <img
+                src={selectedVehicle.image}
+                alt={selectedVehicle.nombre}
+                className="w-96 h-56 object-cover rounded-lg"
+              />
             </div>
-            <hr className="my-4" />
 
-            {/* Sección de Condiciones */}
-            <div>
-              <h3 className="text-xl font-semibold mb-2">Condiciones</h3>
-              <p>{selectedVehicle.conditions}</p>
+            <div className="text-left mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Detalles</h3>
+              <p className="text-gray-700">
+                <strong>Marca:</strong> {selectedVehicle.marca}
+              </p>
+              <p className="text-gray-700">
+                <strong>Modelo:</strong> {selectedVehicle.modelo}
+              </p>
+              <p className="text-gray-700">
+                <strong>Año:</strong> {selectedVehicle.anio}
+              </p>
+              <p className="text-gray-700">
+                <strong>Color:</strong> {selectedVehicle.color}
+              </p>
+              <p className="text-gray-700">
+                <strong>Placa:</strong> {selectedVehicle.placa}
+              </p>
+              <p className="text-gray-700">
+                <strong>Precio por día:</strong> ${selectedVehicle.precio}
+              </p>
+              <p className="text-gray-700">
+                <strong>Kilometraje:</strong> {selectedVehicle.kilometrage} km
+              </p>
+              <p className="text-gray-700">
+                <strong>Tipo de Combustible:</strong>{" "}
+                {selectedVehicle.tipoCombustible}
+              </p>
+              <p className="text-gray-700">
+                <strong>Transmisión:</strong> {selectedVehicle.transmision}
+              </p>
+              <p className="text-gray-700">
+                <strong>Número de Puertas:</strong>{" "}
+                {selectedVehicle.numeroPuertas}
+              </p>
+              <p className="text-gray-700">
+                <strong>Estado:</strong> {selectedVehicle.estado}
+              </p>
+              <p className="text-gray-700">
+                <strong>Último Chequeo:</strong>{" "}
+                {new Date(selectedVehicle.ultimoChequeo).toLocaleDateString()}
+              </p>
             </div>
           </div>
         </div>
