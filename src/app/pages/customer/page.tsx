@@ -143,7 +143,7 @@ const Customer: React.FC = () => {
               <img
                 src={vehicle.imagen}
                 alt={vehicle.nombre}
-                className="w-full h-48 object-cover rounded-lg my-4"
+                className="w-full h-auto object-cover rounded-lg my-4"
               />
               <p className="text-xl font-bold text-gray-900">
                 ${vehicle.precio} al día
