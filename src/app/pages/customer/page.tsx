@@ -27,16 +27,16 @@ const Customer: React.FC = () => {
   const [filterBrand, setFilterBrand] = useState<string>("Todas");
   const [filterPrice, setFilterPrice] = useState<number>(0);
   const [filterAvailability, setFilterAvailability] = useState<string>("Todos");
+  const [filterYear, setFilterYear] = useState<number | "Todos">("Todos");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
   useEffect(() => {
-    // Cargar datos de la API al montar el componente
     fetch("http://localhost:8080/cars", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", // Esto envía las cookies con la solicitud, si es necesario para autenticación
+      credentials: "include",
     })
       .then((response) => response.json())
       .then((data) => {
@@ -49,8 +49,10 @@ const Customer: React.FC = () => {
   }, []);
 
   const uniqueBrands = Array.from(new Set(vehicles.map((vehicle) => vehicle.marca)));
+  const uniqueYears = Array.from(new Set(vehicles.map((vehicle) => vehicle.anio)));
 
-  const applyFilters = () => {
+  // Aplica los filtros automáticamente cuando cambian los valores
+  useEffect(() => {
     let filtered = vehicles;
 
     if (filterBrand !== "Todas") {
@@ -65,7 +67,18 @@ const Customer: React.FC = () => {
       filtered = filtered.filter((vehicle) => vehicle.estado === "Disponible");
     }
 
+    if (filterYear !== "Todos") {
+      filtered = filtered.filter((vehicle) => vehicle.anio === filterYear);
+    }
+
     setFilteredVehicles(filtered);
+  }, [filterBrand, filterPrice, filterAvailability, filterYear, vehicles]);
+
+  const resetFilters = () => {
+    setFilterBrand("Todas");
+    setFilterPrice(0);
+    setFilterAvailability("Todos");
+    setFilterYear("Todos");
   };
 
   const openModal = (vehicle: Vehicle) => {
@@ -120,16 +133,30 @@ const Customer: React.FC = () => {
           <option value="Alquilado">Alquilado</option>
         </select>
 
-        <button
-          onClick={applyFilters}
-          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-[#201E43] transition duration-200"
+        <select
+          value={filterYear}
+          onChange={(e) => setFilterYear(e.target.value === "Todos" ? "Todos" : Number(e.target.value))}
+          className="p-2 border rounded-lg text-gray-800 bg-white"
         >
-          Filtrar
+          <option value="Todos">Todos los años</option>
+          {uniqueYears.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+
+        {/* Botón de Restablecer Filtros */}
+        <button
+          onClick={resetFilters}
+          className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700transition duration-200"
+        >
+          Todos
         </button>
       </div>
 
       {/* Lista de vehículos filtrados */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ">
         {filteredVehicles.length > 0 ? (
           filteredVehicles.map((vehicle) => (
             <div
@@ -143,7 +170,7 @@ const Customer: React.FC = () => {
               <img
                 src={vehicle.imagen}
                 alt={vehicle.nombre}
-                className="w-full h-auto object-cover rounded-lg my-4"
+                className="w-full h-40 object-cover rounded-lg my-4"
               />
               <p className="text-xl font-bold text-gray-900">
                 ${vehicle.precio} al día
