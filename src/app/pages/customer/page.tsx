@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { API_URL } from "@/services/apiClient";
 
 interface Vehicle {
   _id: string;
@@ -29,6 +31,7 @@ const Customer: React.FC = () => {
   const [filterAvailability, setFilterAvailability] = useState<string>("Todos");
   const [filterYear, setFilterYear] = useState<number | "Todos">("Todos");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetch("http://localhost:8080/cars", {
@@ -51,7 +54,6 @@ const Customer: React.FC = () => {
   const uniqueBrands = Array.from(new Set(vehicles.map((vehicle) => vehicle.marca)));
   const uniqueYears = Array.from(new Set(vehicles.map((vehicle) => vehicle.anio)));
 
-  // Aplica los filtros automáticamente cuando cambian los valores
   useEffect(() => {
     let filtered = vehicles;
 
@@ -89,8 +91,34 @@ const Customer: React.FC = () => {
     setSelectedVehicle(null);
   };
 
+  const logout = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/auth/logout", {
+        method: "POST",
+        credentials: "include", // Para incluir las cookies en la solicitud
+      });
+      if (response.ok) {
+        router.push("/"); // Redirige a la página de inicio después de cerrar sesión
+      } else {
+        console.error("Error al cerrar sesión");
+      }
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      {/* Botón de Cerrar Sesión */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={logout}
+          className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black-600 transition duration-200" 
+        >
+          Cerrar Sesión
+        </button>
+      </div>
+
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
         Catálogo de Vehículos
       </h1>
@@ -146,17 +174,16 @@ const Customer: React.FC = () => {
           ))}
         </select>
 
-        {/* Botón de Restablecer Filtros */}
         <button
           onClick={resetFilters}
-          className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700transition duration-200"
+          className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
         >
           Todos
         </button>
       </div>
 
       {/* Lista de vehículos filtrados */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredVehicles.length > 0 ? (
           filteredVehicles.map((vehicle) => (
             <div

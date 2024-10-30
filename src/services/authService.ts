@@ -34,3 +34,12 @@ export async function requestPasswordReset(email: string) {
     body: JSON.stringify({ email }),
   });
 }
+
+export async function changePassword(newPassword: string) {
+  return apiRequest("/auth/change", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ newPassword }),
+    credentials: "include",
+  });
+}
