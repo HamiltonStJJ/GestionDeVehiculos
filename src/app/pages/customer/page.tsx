@@ -128,7 +128,9 @@ const Customer: React.FC = () => {
 
       {/* Filtros */}
       <div className="filters flex flex-wrap justify-center gap-4 mb-8">
+        <label htmlFor="filterBrand" className="sr-only">Marca</label>
         <select
+          id="filterBrand"
           value={filterBrand}
           onChange={(e) => setFilterBrand(e.target.value)}
           className="p-2 border rounded-lg text-gray-800 bg-white"
@@ -178,7 +180,7 @@ const Customer: React.FC = () => {
           onClick={resetFilters}
           className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
         >
-          Todos
+          Borrar Filtros
         </button>
       </div>
 
