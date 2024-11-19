@@ -5,14 +5,7 @@ export async function apiRequest(endpoint: string, options: RequestInit) {
     const response = await fetch(`${API_URL}${endpoint}`, options);
     const data = await response.json();
     
-    if (response.status === 403) {
-      return {
-        status: 'TEMPORARY_PASSWORD',
-        data: data
-      };
-    }
-    
-    if (!response.ok) {
+    if (!response.ok && response.status !== 403) {
       throw new Error("Error en la solicitud");
     }
     

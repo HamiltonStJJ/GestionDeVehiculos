@@ -18,7 +18,9 @@ export default function LoginForm() {
       const result = await login(email, password);
       
       if (result.status === 'TEMPORARY_PASSWORD') {
-        router.push(`/pages/auth/change-password?userId=${result.userData._id}`);
+        router.push(`pages/auth/change-password?userId=${result.userData._id}`);
+      } else if (result.userData.rol === 'admin') {
+        router.push("/pages/admin"); // O la ruta que prefieras para el panel admin
       } else {
         router.push("/pages/customer");
       }

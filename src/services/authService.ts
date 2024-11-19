@@ -27,16 +27,20 @@ export async function login(email: string, password: string) {
       credentials: "include",
     });
 
-    if (response.status === 'TEMPORARY_PASSWORD') {
+    if (response.message) {
+      throw new Error(response.message);
+    }
+
+    if (response.authentication?.isTemporaryPassword) {
       return {
         status: 'TEMPORARY_PASSWORD',
-        userData: response.data
+        userData: response
       };
     }
 
     return {
       status: 'SUCCESS',
-      userData: response
+      userData: response  
     };
   } catch (error) {
     throw error;
