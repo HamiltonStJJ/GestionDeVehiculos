@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import LoginPage from '@/app/pages/auth/Login/page';
 import { useRouter } from 'next/navigation';
-import userEvent from '@testing-library/user-event';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -36,22 +35,5 @@ describe('LoginPage', () => {
     render(<LoginPage />);
     expect(screen.getByPlaceholderText(/tucorreo@example.com/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/••••••••/i)).toBeInTheDocument();
-  });
-/*
-  it('simulates navigation to register page on click', async() => {
-    const { push } = useRouter() as jest.MockedFunction<any>;
-    render(<LoginPage />);
-    userEvent.click(screen.getByText(/registrarse/i));
-    await waitFor(() => {
-      expect(mockRouter.push).toHaveBeenCalledWith('pages/auth/register');
-    });
-
-  });
-
-  it('simulates navigation to forgot password page on click', () => {
-    const { push } = useRouter() as jest.MockedFunction<any>;
-    render(<LoginPage />);
-    userEvent.click(screen.getByText(/¿Olvidaste tu contraseña?/i));
-    expect(mockRouter.push).toHaveBeenCalledWith('pages/auth/forgot-password');
-  });*/
+  }); 
 });

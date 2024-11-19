@@ -1,4 +1,3 @@
-// tests/integration/ForgotPasswordForm.test.tsx
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ForgotPasswordForm from '@/app/pages/auth/forgot-password/ForgotPasswordForm';

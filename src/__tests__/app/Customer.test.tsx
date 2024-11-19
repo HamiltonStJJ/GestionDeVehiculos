@@ -7,7 +7,6 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-// Mock de fetch global
 global.fetch = jest.fn(() =>
   Promise.resolve({
     json: () => Promise.resolve([
@@ -45,7 +44,7 @@ describe('Customer Component', () => {
       render(<Customer />);
     });
 
-    // Asegúrate de que el título y la descripción estén en el documento
+    
     expect(screen.getByText(/Catálogo de Vehículos/i)).toBeInTheDocument();
     expect(
       screen.getByText(/Explora los vehículos disponibles para alquilar/i)
@@ -57,7 +56,6 @@ describe('Customer Component', () => {
       render(<Customer />);
     });
 
-    // Espera que los datos de vehículos se muestren correctamente
     await waitFor(() => {
       expect(screen.getByText(/Toyota Corolla/i)).toBeInTheDocument();
     });

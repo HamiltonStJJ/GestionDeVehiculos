@@ -29,34 +29,28 @@ describe('LoginPage - Integration Tests', () => {
 
     render(<LoginPage />);
 
-    // Llenar el formulario de inicio de sesión
     await userEvent.type(screen.getByPlaceholderText(/tucorreo@example.com/i), 'usuario@example.com');
     await userEvent.type(screen.getByPlaceholderText(/••••••••/i), 'password123');
 
-    // Enviar formulario
     await userEvent.click(screen.getByText(/ingresar/i));
 
-    // Esperar redirección
     await waitFor(() => {
       expect(mockRouter.push).toHaveBeenCalledWith('pages/customer');
     });
   });
 
   it('shows error message when login fails', async () => {
-    // Forzar que la función login rechace la promesa
+    
     (login as jest.Mock).mockRejectedValue(new Error('Credenciales incorrectas'));
 
     render(<LoginPage />);
 
-    // Llenar el formulario de inicio de sesión
     await userEvent.type(screen.getByPlaceholderText(/tucorreo@example.com/i), 'usuario@example.com');
     await userEvent.type(screen.getByPlaceholderText(/••••••••/i), 'password123');
 
-    // Enviar formulario
     await userEvent.click(screen.getByText(/ingresar/i));
     
     render(<LoginForm />);
-    // Verificar que el mensaje de error aparece
     expect(await screen.findByText(/credenciales incorrectas/i)).toBeInTheDocument();
   });
 });

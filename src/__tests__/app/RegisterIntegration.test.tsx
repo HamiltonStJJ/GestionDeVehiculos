@@ -7,7 +7,6 @@ jest.mock('@/services/authService', () => ({
   register: jest.fn(),
 }));
 
-// Mock para window.alert
 global.alert = jest.fn();
 
 describe('RegisterPage - Integration Tests', () => {
