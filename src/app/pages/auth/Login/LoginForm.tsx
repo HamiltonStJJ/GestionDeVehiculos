@@ -15,8 +15,13 @@ export default function LoginForm() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await login(email, password);
-      router.push("pages/customer");
+      const result = await login(email, password);
+      
+      if (result.status === 'TEMPORARY_PASSWORD') {
+        router.push(`/pages/auth/change-password?userId=${result.userData._id}`);
+      } else {
+        router.push("/pages/customer");
+      }
     } catch (err) {
       setError("Credenciales incorrectas");
     }

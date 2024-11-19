@@ -13,7 +13,7 @@ export default function ForgotPasswordForm() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await requestPasswordReset(email);
+      const result = await requestPasswordReset(email);
       setSuccessMessage("Correo de recuperación enviado con éxito.");
       setError(null);
     } catch (err) {
