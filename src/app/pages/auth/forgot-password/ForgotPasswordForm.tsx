@@ -13,7 +13,7 @@ export default function ForgotPasswordForm() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await requestPasswordReset(email);
+      const result = await requestPasswordReset(email);
       setSuccessMessage("Correo de recuperación enviado con éxito.");
       setError(null);
     } catch (err) {
@@ -26,7 +26,7 @@ export default function ForgotPasswordForm() {
       <InputField label="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
       {error && <p className="text-red-500 text-sm">{error}</p>}
       {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
-      <AuthButton text="Recuperar Contraseña" onClick={()=> handleSubmit} />
+      <AuthButton text="Recuperar ahora" onClick={()=> handleSubmit} />
     </form>
   );
 }

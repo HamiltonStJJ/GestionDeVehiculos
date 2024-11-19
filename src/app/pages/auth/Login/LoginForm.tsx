@@ -15,8 +15,13 @@ export default function LoginForm() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await login(email, password);
-      router.push("pages/customer");
+      const result = await login(email, password);
+      
+      if (result.status === 'TEMPORARY_PASSWORD') {
+        router.push(`/pages/auth/change-password?userId=${result.userData._id}`);
+      } else {
+        router.push("/pages/customer");
+      }
     } catch (err) {
       setError("Credenciales incorrectas");
     }
@@ -24,10 +29,10 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <InputField label="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
+      <InputField label="Correo electrónico" type="email"  value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
       <InputField label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <AuthButton text="Iniciar sesión" onClick={() => handleSubmit} />
+      <AuthButton text="Ingresar" onClick={() => handleSubmit} />
     </form>
-  );
+  );  
 }
