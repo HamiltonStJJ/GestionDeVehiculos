@@ -1,25 +1,45 @@
 'use client'
-import { useState, ChangeEvent, FormEvent } from 'react'
+import { useState, ChangeEvent, FormEvent, useEffect } from 'react'
 
-interface Vehicle {
-  id: number
-  name: string
-  brand: string
-  model: string
-  year: string
-  color: string
-  plate: string
-  mileage: string
-  fuelType: string
-  transmission: string
-  doors: string
-  status: string
-  lastCheck: string
+interface Tarifa {
+  _id: string
+  tipoVehiculo: string
+  duracion: string
+  temporada: string
+  tarifa: number
 }
 
-interface FormData extends Omit<Vehicle, 'id'> {}
+interface Mantenimiento {
+  fecha: string
+  descripcion: string
+  _id: string
+}
 
-// Componente de input reutilizable separado para mejor legibilidad
+interface Vehicle {
+  _id: string
+  nombre: string
+  marca: string
+  modelo: string
+  anio: number
+  color: string
+  imagen: string
+  placa: string
+  kilometraje: number
+  tipoCombustible: string
+  transmision: string
+  numeroPuertas: number
+  numeroAsientos: number
+  estado: string
+  UltimoChequeo: string
+  tarifas: Tarifa[]
+  mantenimientos: Mantenimiento[]
+}
+
+interface FormData extends Omit<Vehicle, '_id'> {
+  tarifas: Tarifa[] // Cambiado para aceptar array de Tarifa
+  mantenimientos: Mantenimiento[]
+}
+
 const FormInput = ({ 
   label, 
   name, 
@@ -32,7 +52,7 @@ const FormInput = ({
   name: string
   type?: string
   options?: string[] | null
-  value: string
+  value: string | number
   onChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
 }) => {
   if (options) {
@@ -71,75 +91,177 @@ const FormInput = ({
 }
 
 const VehiclePage = () => {
+  const API_URL = process.env.API_URL;
   // Datos predefinidos
-  const brands = ["Toyota", "Ford", "Chevrolet", "Honda", "Nissan"]
-  const colors = ["Blanco", "Negro", "Azul", "Rojo", "Plata"]
+  const brands = ["Volkswagen", "Toyota", "Ford", "Chevrolet", "Honda", "Nissan"]
+  const colors = ["Verde", "Blanco", "Negro", "Azul", "Rojo", "Plata"]
   const fuelTypes = ["Gasolina", "Diesel", "Híbrido", "Eléctrico"]
   const transmissions = ["Manual", "Automática"]
   const statuses = ["Disponible", "Alquilado", "En mantenimiento"]
 
+  
+
   // Estados
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    brand: '',
-    model: '',
-    year: '',
+    nombre: '',
+    marca: '',
+    modelo: '',
+    anio: 2024,
     color: '',
-    plate: '',
-    mileage: '',
-    fuelType: '',
-    transmission: '',
-    doors: '',
-    status: 'Disponible',
-    lastCheck: ''
+    imagen: '',
+    placa: '',
+    kilometraje: 0,
+    tipoCombustible: '',
+    transmision: '',
+    numeroPuertas: 4,
+    numeroAsientos: 4,
+    estado: 'Disponible',
+    UltimoChequeo: new Date().toISOString(),
+    tarifas: [], // Inicializado como array vacío
+    mantenimientos: [] // Inicializado como array vacío
   })
+
+  const fetchConfig = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include" as RequestCredentials,
+  }
+
+  // Fetch vehicles from API
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      console.log("API_URL", API_URL)
+      try {
+        const response = await fetch(`http://localhost:8080/cars/`, {
+          method: "GET",
+          ...fetchConfig
+        })
+        if (!response.ok) throw new Error('Failed to fetch vehicles')
+        const data = await response.json()
+        const filteredData = data.filter((vehicle: Vehicle) => vehicle.estado !== 'Eliminado')
+        setVehicles(filteredData)
+      } catch (error) {
+        console.error('Error fetching vehicles:', error)
+      }
+    }
+
+    fetchVehicles()
+  }, [])
 
   // Manejadores de eventos
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: ['anio', 'kilometraje', 'numeroPuertas', 'numeroAsientos'].includes(name) 
+        ? Number(value) 
+        : value 
+    }))
   }
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (editingId !== null) {
-      setVehicles(vehicles.map(vehicle =>
-        vehicle.id === editingId ? { ...formData, id: editingId } : vehicle
-      ))
+    try {
+      // Preparar el body con el formato correcto
+      const bodyData = {
+        ...formData,
+        UltimoChequeo: new Date(formData.UltimoChequeo).toISOString(),
+        // Si no hay tarifas seleccionadas, enviar array vacío
+        tarifas: formData.tarifas || [],
+        // Si no hay mantenimientos, enviar array vacío
+        mantenimientos: formData.mantenimientos || []
+      }
+
+      if (editingId) {
+        // Update existing vehicle
+        const response = await fetch(`http://localhost:8080/cars/${editingId}`, {
+          method: 'PUT',
+          ...fetchConfig,
+          body: JSON.stringify(bodyData)
+        })
+        if (!response.ok) throw new Error('Failed to update vehicle')
+        
+        setVehicles(vehicles.map(vehicle =>
+          vehicle._id === editingId ? { ...vehicle, ...bodyData } : vehicle
+        ))
+      } else {
+        // Create new vehicle
+        const response = await fetch('http://localhost:8080/cars/', {
+          method: 'POST',
+          ...fetchConfig,
+          body: JSON.stringify(bodyData)
+        })
+        if (!response.ok) throw new Error('Failed to create vehicle')
+        const newVehicle = await response.json()
+        setVehicles([...vehicles, newVehicle])
+      }
+      
+      resetForm()
       setEditingId(null)
-    } else {
-      setVehicles([...vehicles, { ...formData, id: Date.now() }])
+    } catch (error) {
+      console.error('Error saving vehicle:', error)
     }
-    resetForm()
   }
 
   const handleEdit = (vehicle: Vehicle) => {
-    setEditingId(vehicle.id)
-    setFormData(vehicle)
-  }
-
-  const handleDelete = (id: number) => {
-    setVehicles(vehicles.filter(vehicle => vehicle.id !== id))
+    setEditingId(vehicle._id)
+    setFormData({
+      nombre: vehicle.nombre,
+      marca: vehicle.marca,
+      modelo: vehicle.modelo,
+      anio: vehicle.anio,
+      color: vehicle.color,
+      imagen: vehicle.imagen,
+      placa: vehicle.placa,
+      kilometraje: vehicle.kilometraje,
+      tipoCombustible: vehicle.tipoCombustible,
+      transmision: vehicle.transmision,
+      numeroPuertas: vehicle.numeroPuertas,
+      numeroAsientos: vehicle.numeroAsientos,
+      estado: vehicle.estado,
+      UltimoChequeo: vehicle.UltimoChequeo,
+      tarifas: vehicle.tarifas, // Asignar el objeto completo
+      mantenimientos: vehicle.mantenimientos
+    })
   }
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      brand: '',
-      model: '',
-      year: '',
+      nombre: '',
+      marca: '',
+      modelo: '',
+      anio: 2024,
       color: '',
-      plate: '',
-      mileage: '',
-      fuelType: '',
-      transmission: '',
-      doors: '',
-      status: 'Disponible',
-      lastCheck: ''
+      imagen: '',
+      placa: '',
+      kilometraje: 0,
+      tipoCombustible: '',
+      transmision: '',
+      numeroPuertas: 4,
+      numeroAsientos: 4,
+      estado: 'Disponible',
+      UltimoChequeo: new Date().toISOString(),
+      tarifas: [],
+      mantenimientos: []
     })
   }
+
+  const handleDelete = async (placa: string) => {
+    try {
+      const response = await fetch(`http://localhost:8080/cars/${placa}`, {
+        method: 'DELETE',
+        ...fetchConfig,
+      })
+      if (!response.ok) throw new Error('Failed to delete vehicle')
+      setVehicles(vehicles.filter(vehicle => vehicle.placa !== placa))
+    } catch (error) {
+      console.error('Error deleting vehicle:', error)
+    }
+  }
+
 
   return (
     <div className="container mx-auto p-4">
@@ -154,28 +276,28 @@ const VehiclePage = () => {
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <FormInput 
             label="Nombre" 
-            name="name" 
-            value={formData.name}
+            name="nombre" 
+            value={formData.nombre}
             onChange={handleChange}
           />
           <FormInput 
             label="Marca" 
-            name="brand" 
+            name="marca" 
             options={brands}
-            value={formData.brand}
+            value={formData.marca}
             onChange={handleChange}
           />
           <FormInput 
             label="Modelo" 
-            name="model"
-            value={formData.model}
+            name="modelo"
+            value={formData.modelo}
             onChange={handleChange}
           />
           <FormInput 
             label="Año" 
-            name="year" 
+            name="anio" 
             type="number"
-            value={formData.year}
+            value={formData.anio}
             onChange={handleChange}
           />
           <FormInput 
@@ -186,51 +308,64 @@ const VehiclePage = () => {
             onChange={handleChange}
           />
           <FormInput 
+            label="Imagen URL" 
+            name="imagen"
+            value={formData.imagen}
+            onChange={handleChange}
+          />
+          <FormInput 
             label="Placa" 
-            name="plate"
-            value={formData.plate}
+            name="placa"
+            value={formData.placa}
             onChange={handleChange}
           />
           <FormInput 
             label="Kilometraje" 
-            name="mileage" 
+            name="kilometraje" 
             type="number"
-            value={formData.mileage}
+            value={formData.kilometraje}
             onChange={handleChange}
           />
           <FormInput 
             label="Tipo de Combustible" 
-            name="fuelType" 
+            name="tipoCombustible" 
             options={fuelTypes}
-            value={formData.fuelType}
+            value={formData.tipoCombustible}
             onChange={handleChange}
           />
           <FormInput 
             label="Transmisión" 
-            name="transmission" 
+            name="transmision" 
             options={transmissions}
-            value={formData.transmission}
+            value={formData.transmision}
             onChange={handleChange}
           />
           <FormInput 
             label="Número de Puertas" 
-            name="doors" 
+            name="numeroPuertas" 
             type="number"
-            value={formData.doors}
+            value={formData.numeroPuertas}
+            onChange={handleChange}
+          />
+          <FormInput 
+            label="Número de Asientos" 
+            name="numeroAsientos" 
+            type="number"
+            value={formData.numeroAsientos}
             onChange={handleChange}
           />
           <FormInput 
             label="Estado" 
-            name="status" 
+            name="estado" 
             options={statuses}
-            value={formData.status}
+            value={formData.estado}
             onChange={handleChange}
           />
           <FormInput 
             label="Último Chequeo" 
-            name="lastCheck" 
+            name="UltimoChequeo" 
             type="date"
-            value={formData.lastCheck}
+            value={formData.UltimoChequeo}
             onChange={handleChange}
           />
 
@@ -258,21 +393,21 @@ const VehiclePage = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {vehicles.map((vehicle) => (
-              <tr key={vehicle.id}>
+              <tr key={vehicle._id}>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{vehicle.name}</div>
-                  <div className="text-sm text-gray-500">{vehicle.brand} {vehicle.model}</div>
+                  <div className="text-sm font-medium text-gray-900">{vehicle.nombre}</div>
+                  <div className="text-sm text-gray-500">{vehicle.marca} {vehicle.modelo}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">Placa: {vehicle.plate}</div>
-                  <div className="text-sm text-gray-500">Km: {vehicle.mileage}</div>
+                  <div className="text-sm text-gray-900">Placa: {vehicle.placa}</div>
+                  <div className="text-sm text-gray-500">Km: {vehicle.kilometraje}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${vehicle.status === 'Disponible' ? 'bg-green-100 text-green-800' : 
-                      vehicle.status === 'Alquilado' ? 'bg-blue-100 text-blue-800' : 
+                    ${vehicle.estado === 'Disponible' ? 'bg-green-100 text-green-800' : 
+                      vehicle.estado === 'Alquilado' ? 'bg-blue-100 text-blue-800' : 
                       'bg-red-100 text-red-800'}`}>
-                    {vehicle.status}
+                    {vehicle.estado}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -284,7 +419,7 @@ const VehiclePage = () => {
                     Editar
                   </button>
                   <button
-                    onClick={() => handleDelete(vehicle.id)}
+                    onClick={() => handleDelete(vehicle.placa)}
                     className="text-red-600 hover:text-red-900"
                     type="button"
                   >
