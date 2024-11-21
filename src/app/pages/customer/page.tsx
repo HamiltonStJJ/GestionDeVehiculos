@@ -13,7 +13,6 @@ interface Vehicle {
   anio: number;
   color: string;
   placa: string;
-  precio: number;
   kilometrage: number;
   tipoCombustible: string;
   transmision: string;
@@ -21,7 +20,11 @@ interface Vehicle {
   estado: string;
   UltimoChequeo: string;
   imagen: string;
+  tarifas: {
+    tarifa: number;
+  }[]; // Cambiado para reflejar el formato del array de tarifas
 }
+
 
 const Customer: React.FC = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -40,22 +43,24 @@ const Customer: React.FC = () => {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      
     })
       .then((response) => response.json())
       .then((data) => {
-        
-        const filteredData = data.filter(
-          (vehicle: Vehicle) => vehicle.estado !== "Eliminado"
-        );
+        const filteredData = data
+          .filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado")
+          .map((vehicle: Vehicle) => ({
+            ...vehicle,
+            precio: vehicle.tarifas[0]?.tarifa || 0, // Toma el precio de la primera tarifa, o 0 si no hay tarifas
+          }));
+  
         setVehicles(filteredData);
-        
         setFilteredVehicles(filteredData);
       })
       .catch((error) => {
         console.error("Error al cargar los datos:", error);
       });
   }, []);
+  
 
   const uniqueBrands = Array.from(new Set(vehicles.map((vehicle) => vehicle.marca)));
   const uniqueYears = Array.from(new Set(vehicles.map((vehicle) => vehicle.anio)));
@@ -68,7 +73,7 @@ const Customer: React.FC = () => {
     }
 
     if (filterPrice > 0) {
-      filtered = filtered.filter((vehicle) => vehicle.precio <= filterPrice);
+      filtered = filtered.filter((vehicle) => vehicle.tarifas[0]?.tarifa <= filterPrice);
     }
 
     if (filterAvailability === "Disponible") {
@@ -208,7 +213,7 @@ const Customer: React.FC = () => {
                 className="w-full h-40 object-cover rounded-lg my-4"
               />
               <p className="text-xl font-bold text-gray-900">
-                ${vehicle.precio} al día
+              ${vehicle.tarifas[0]?.tarifa || 0} al día
               </p>
               <button
                 onClick={() => openModal(vehicle)}
@@ -265,7 +270,7 @@ const Customer: React.FC = () => {
                 <strong>Placa:</strong> {selectedVehicle.placa}
               </p>
               <p className="text-gray-700">
-                <strong>Precio por día:</strong> ${selectedVehicle.precio}
+                <strong>Precio por día:</strong> ${selectedVehicle.tarifas[0]?.tarifa || 0}
               </p>
               <p className="text-gray-700">
                 <strong>Kilometraje:</strong> {selectedVehicle.kilometrage} km
