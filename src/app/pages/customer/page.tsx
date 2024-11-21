@@ -40,11 +40,17 @@ const Customer: React.FC = () => {
         "Content-Type": "application/json",
       },
       credentials: "include",
+      
     })
       .then((response) => response.json())
       .then((data) => {
-        setVehicles(data);
-        setFilteredVehicles(data);
+        
+        const filteredData = data.filter(
+          (vehicle: Vehicle) => vehicle.estado !== "Eliminado"
+        );
+        setVehicles(filteredData);
+        
+        setFilteredVehicles(filteredData);
       })
       .catch((error) => {
         console.error("Error al cargar los datos:", error);
