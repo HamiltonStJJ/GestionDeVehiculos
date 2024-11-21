@@ -142,7 +142,7 @@ const VehiclePage = () => {
   const colors = ["Verde", "Blanco", "Negro", "Azul", "Rojo", "Plata"];
   const fuelTypes = ["Gasolina", "Diesel", "Híbrido", "Eléctrico"];
   const transmissions = ["Manual", "Automatica"];
-  const statuses = ["Disponible", "Alquilado", "En mantenimiento"];
+  const statuses = ["Disponible", "Alquilado"];
 
   // Estados
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
