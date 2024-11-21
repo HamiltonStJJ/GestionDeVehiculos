@@ -362,6 +362,7 @@ const VehiclePage = () => {
         >
           <FormInput
             label="Nombre"
+            
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
