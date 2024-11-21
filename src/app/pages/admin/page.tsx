@@ -162,7 +162,7 @@ const VehiclePage = () => {
     transmision: "",
     numeroAsientos: 4,
     estado: "Disponible",
-    UltimoChequeo: new Date().toISOString(),
+    UltimoChequeo: new Date().toISOString().split("T")[0], // Formato yyyy-MM-dd
     tarifas: [],
     mantenimientos: [],
   });
@@ -250,6 +250,7 @@ const VehiclePage = () => {
   
       if (editingId) {
         // Usar la placa para el endpoint del PUT
+        console.log(bodyData);
         const response = await fetch(
           `http://localhost:8080/cars/${formData.placa}`,
           {
@@ -303,7 +304,7 @@ const VehiclePage = () => {
       transmision: vehicle.transmision,
       numeroAsientos: vehicle.numeroAsientos,
       estado: vehicle.estado,
-      UltimoChequeo: vehicle.UltimoChequeo,
+      UltimoChequeo: vehicle.UltimoChequeo.split("T")[0], // Formato yyyy-MM-dd
       tarifas: vehicle.tarifas.map((t) => t._id), // Extraer solo los IDs
       mantenimientos: vehicle.mantenimientos,
     });
@@ -323,7 +324,7 @@ const VehiclePage = () => {
       transmision: "",
       numeroAsientos: 4,
       estado: "Disponible",
-      UltimoChequeo: new Date().toISOString(),
+      UltimoChequeo: new Date().toISOString().split("T")[0], // For
       tarifas: [],
       mantenimientos: [],
     });
