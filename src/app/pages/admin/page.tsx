@@ -1,5 +1,6 @@
 "use client";
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import TarifaModal  from "./tarifaCRUD";
 
 interface Tarifa {
   _id: string;
@@ -143,11 +144,13 @@ const VehiclePage = () => {
   const fuelTypes = ["Gasolina", "Diesel", "Híbrido", "Eléctrico"];
   const transmissions = ["Manual", "Automatica"];
   const statuses = ["Disponible", "Alquilado"];
+  
 
   // Estados
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [availableTarifas, setAvailableTarifas] = useState<Tarifa[]>([]);
+  const [isTarifaModalOpen, setIsTarifaModalOpen] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     nombre: "",
@@ -445,7 +448,10 @@ const VehiclePage = () => {
             value={formData.UltimoChequeo}
             onChange={handleChange}
           />
-
+        {/*<div className="mt-8">
+        <h2 className="text-xl font-bold mb-4">Gestión de Tarifas</h2>
+        {/*<TarifaModal 
+      </div>*/}
           <div className="col-span-full">
             <TarifaSelect
               tarifas={availableTarifas}
