@@ -135,8 +135,30 @@ const TarifaSelect = ({
   );
 };
 
+//Modal
+const Modal = ({isOpen, onClose, children}:{isOpen: boolean; onClose: ()=>void;children: React.ReactNode})=>{
+if(!isOpen) return null;
+return (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div
+      className="relative bg-white rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto p-6 md:p-8"
+    >
+      <button
+        className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 focus:outline-none"
+        onClick={onClose}
+        aria-label="Close Modal"
+      >
+        ✕
+      </button>
+      <div className="overflow-y-auto max-h-[90vh]">
+        {children}
+      </div>
+    </div>
+  </div>
+);
+};
+
 const VehiclePage = () => {
-  const API_URL = process.env.API_URL;
   // Datos predefinidos
   const brands = [
     "Volkswagen",
@@ -156,6 +178,7 @@ const VehiclePage = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [availableTarifas, setAvailableTarifas] = useState<Tarifa[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTarifaModalOpen, setIsTarifaModalOpen] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -182,10 +205,13 @@ const VehiclePage = () => {
     credentials: "include" as RequestCredentials,
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   // Fetch vehicles from API
   useEffect(() => {
     const fetchVehicles = async () => {
-      console.log("API_URL", API_URL);
       try {
         const response = await fetch(`http://localhost:8080/cars/`, {
           method: "GET",
@@ -247,55 +273,69 @@ const VehiclePage = () => {
   };
 
   
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+  
     try {
-      // Preparar el body con el formato correcto
+      // Prepare the body data
       const bodyData = {
         ...formData,
         UltimoChequeo: new Date(formData.UltimoChequeo).toISOString(),
-        tarifas: formData.tarifas, // Ya tenemos los IDs directamente
+        tarifas: formData.tarifas,
         mantenimientos: formData.mantenimientos || [],
       };
-      console.log(editingId);
+  
+      let response;
+  
       if (editingId) {
-        // Usar la placa para el endpoint del PUT
-        console.log(bodyData);
-        const response = await fetch(
-          `http://localhost:8080/cars/${formData.placa}`,
-          {
-            method: "PUT",
-            ...fetchConfig,
-            body: JSON.stringify(bodyData),
-          }
-        );
+        // Only send the update request if there are actual changes
+        const existingVehicle = vehicles.find((vehicle) => vehicle._id === editingId);
+        const hasChanges = JSON.stringify(existingVehicle) !== JSON.stringify({ ...existingVehicle, ...bodyData });
+  
+        if (!hasChanges) {
+          toast.info("No changes detected.");
+          setIsModalOpen(false); // Close modal since there's nothing to do
+          return;
+        }
+  
+        // PUT request to update the vehicle
+        response = await fetch(`http://localhost:8080/cars/${formData.placa}`, {
+          method: "PUT",
+          ...fetchConfig,
+          body: JSON.stringify(bodyData),
+        });
+  
         if (!response.ok) throw new Error("Failed to update vehicle");
         toast.success("Vehicle updated successfully!");
       } else {
-        const response = await fetch("http://localhost:8080/cars/", {
+        // POST request to create a new vehicle
+        response = await fetch("http://localhost:8080/cars/", {
           method: "POST",
           ...fetchConfig,
           body: JSON.stringify(bodyData),
         });
+  
         if (!response.ok) throw new Error("Failed to create vehicle");
         toast.success("Vehicle created successfully!");
       }
   
-      // Realizar un nuevo fetch para obtener los datos actualizados
+      // Only refetch vehicles if the create/update was successful
       const updatedResponse = await fetch("http://localhost:8080/cars/", {
         method: "GET",
         ...fetchConfig,
       });
+  
       if (!updatedResponse.ok) throw new Error("Failed to fetch updated vehicles");
       const updatedVehicles = await updatedResponse.json();
       const filteredVehicles = updatedVehicles.filter(
         (vehicle: Vehicle) => vehicle.estado !== "Eliminado"
       );
       setVehicles(filteredVehicles);
-      
+  
+      // Reset state
       resetForm();
       setEditingId(null);
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving vehicle:", error);
       toast.error("Error saving vehicle");
@@ -305,6 +345,7 @@ const VehiclePage = () => {
   
   const handleEdit = (vehicle: Vehicle) => {
     setEditingId(vehicle._id);
+    setIsModalOpen(true);
     setFormData({
       nombre: vehicle.nombre,
       marca: vehicle.marca,
@@ -364,7 +405,7 @@ const VehiclePage = () => {
       <h1 className="text-3xl font-bold mb-6">Gestión de Vehículos</h1>
 
       {/* Formulario */}
-      <div className="bg-white shadow-md rounded p-6 mb-6">
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <h2 className="text-xl font-semibold mb-4">
           {editingId !== null ? "Editar Vehículo" : "Agregar Nuevo Vehículo"}
         </h2>
@@ -486,8 +527,14 @@ const VehiclePage = () => {
             </button>
           </div>
         </form>
-      </div>
+      </Modal>
 
+      <button
+      onClick={()=> setIsModalOpen(true)}
+      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
+      >
+        Agregar Vehículo
+      </button>
       {/* Tabla de Vehículos */}
       <div className="overflow-x-auto bg-white shadow-md rounded">
         <table className="min-w-full divide-y divide-gray-200">
