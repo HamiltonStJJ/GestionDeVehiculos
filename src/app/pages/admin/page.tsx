@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "react-toastify";
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import TarifaModal  from "./tarifaCRUD";
 
@@ -240,6 +241,8 @@ const VehiclePage = () => {
     }));
   };
 
+  
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -250,7 +253,7 @@ const VehiclePage = () => {
         tarifas: formData.tarifas, // Ya tenemos los IDs directamente
         mantenimientos: formData.mantenimientos || [],
       };
-  
+      console.log(editingId);
       if (editingId) {
         // Usar la placa para el endpoint del PUT
         console.log(bodyData);
@@ -263,6 +266,7 @@ const VehiclePage = () => {
           }
         );
         if (!response.ok) throw new Error("Failed to update vehicle");
+        toast.success("Vehicle updated successfully!");
       } else {
         const response = await fetch("http://localhost:8080/cars/", {
           method: "POST",
@@ -270,6 +274,7 @@ const VehiclePage = () => {
           body: JSON.stringify(bodyData),
         });
         if (!response.ok) throw new Error("Failed to create vehicle");
+        toast.success("Vehicle created successfully!");
       }
   
       // Realizar un nuevo fetch para obtener los datos actualizados
@@ -283,11 +288,12 @@ const VehiclePage = () => {
         (vehicle: Vehicle) => vehicle.estado !== "Eliminado"
       );
       setVehicles(filteredVehicles);
-  
+      
       resetForm();
       setEditingId(null);
     } catch (error) {
       console.error("Error saving vehicle:", error);
+      toast.error("Error saving vehicle");
     }
   };
   
@@ -340,6 +346,7 @@ const VehiclePage = () => {
         ...fetchConfig,
       });
       if (!response.ok) throw new Error("Failed to delete vehicle");
+      toast.success("Vehículo eliminado correctamente!");
       setVehicles(vehicles.filter((vehicle) => vehicle.placa !== placa));
     } catch (error) {
       console.error("Error deleting vehicle:", error);
