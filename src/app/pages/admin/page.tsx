@@ -115,6 +115,7 @@ const TarifaSelect = ({
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium">Tarifas</label>
+      {/*<div><TarifaModal /></div>*/}
       <select
         multiple
         className="w-full border rounded p-2"
@@ -354,10 +355,11 @@ const VehiclePage = () => {
       setVehicles(vehicles.filter((vehicle) => vehicle.placa !== placa));
     } catch (error) {
       console.error("Error deleting vehicle:", error);
-    }
+    } 
   };
 
   return (
+    <div className="flex">  
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Gestión de Vehículos</h1>
 
@@ -559,6 +561,7 @@ const VehiclePage = () => {
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 };
