@@ -48,6 +48,7 @@ const FormInput = ({
   options = null,
   value,
   onChange,
+  disabled = false,
 }: {
   label: string;
   name: string;
@@ -55,6 +56,7 @@ const FormInput = ({
   options?: string[] | null;
   value: string | number;
   onChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  disabled?: boolean;
 }) => {
   if (options) {
     return (
@@ -64,6 +66,7 @@ const FormInput = ({
           name={name}
           value={value}
           onChange={onChange}
+          disabled={disabled}
           className="w-full border rounded p-2"
           required
         >
@@ -86,6 +89,7 @@ const FormInput = ({
         name={name}
         value={value || ""}
         onChange={onChange}
+        disabled={disabled}
         className="w-full border rounded p-2"
         required
       />
@@ -412,6 +416,7 @@ const VehiclePage = () => {
             name="placa"
             value={formData.placa}
             onChange={handleChange}
+            disabled={!!editingId} 
           />
           <FormInput
             label="Kilometraje"
