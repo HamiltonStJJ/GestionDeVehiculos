@@ -49,6 +49,7 @@ const FormInput = ({
   value,
   onChange,
   disabled = false,
+  id,
 }: {
   label: string;
   name: string;
@@ -57,12 +58,14 @@ const FormInput = ({
   value: string | number;
   onChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   disabled?: boolean;
+  id?: string;
 }) => {
   if (options) {
     return (
       <div className="space-y-2">
         <label className="block text-sm font-medium">{label}</label>
         <select
+          id={id}
           name={name}
           value={value}
           onChange={onChange}
@@ -85,6 +88,7 @@ const FormInput = ({
     <div className="space-y-2">
       <label className="block text-sm font-medium">{label}</label>
       <input
+        id={id}
         type={type}
         name={name}
         value={value || ""}
@@ -100,10 +104,12 @@ const TarifaSelect = ({
   tarifas,
   selectedTarifas,
   onChange,
+  id,
 }: {
   tarifas: Tarifa[];
   selectedTarifas: string[];
   onChange: (selectedIds: string[]) => void;
+  id?: string;
 }) => {
   const handleTarifaChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedOptions = Array.from(e.target.selectedOptions).map(
@@ -117,6 +123,7 @@ const TarifaSelect = ({
       <label className="block text-sm font-medium">Tarifas</label>
       {/*<div><TarifaModal /></div>*/}
       <select
+        id="tarifas"
         multiple
         className="w-full border rounded p-2"
         onChange={handleTarifaChange}
@@ -415,13 +422,14 @@ const VehiclePage = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         >
           <FormInput
+            id="nombre"
             label="Nombre"
-            
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
           />
           <FormInput
+            id="marca"
             label="Marca"
             name="marca"
             options={brands}
@@ -429,12 +437,14 @@ const VehiclePage = () => {
             onChange={handleChange}
           />
           <FormInput
+            id="modelo"
             label="Modelo"
             name="modelo"
             value={formData.modelo}
             onChange={handleChange}
           />
           <FormInput
+            id="anio"
             label="Año"
             name="anio"
             type="number"
@@ -442,6 +452,7 @@ const VehiclePage = () => {
             onChange={handleChange}
           />
           <FormInput
+            id="color"
             label="Color"
             name="color"
             options={colors}
@@ -449,12 +460,14 @@ const VehiclePage = () => {
             onChange={handleChange}
           />
           <FormInput
+            id="imagen"
             label="Imagen URL"
             name="imagen"
             value={formData.imagen}
             onChange={handleChange}
           />
           <FormInput
+            id="placa"
             label="Placa"
             name="placa"
             value={formData.placa}
@@ -462,6 +475,7 @@ const VehiclePage = () => {
             disabled={!!editingId} 
           />
           <FormInput
+            id="kilometraje"
             label="Kilometraje"
             name="kilometraje"
             type="number"
@@ -470,6 +484,7 @@ const VehiclePage = () => {
           />
 
           <FormInput
+            id="tipoCombustible"
             label="Tipo de Combustible"
             name="tipoCombustible"
             options={fuelTypes}
@@ -477,6 +492,7 @@ const VehiclePage = () => {
             onChange={handleChange}
           />
           <FormInput
+            id="transmision"
             label="Transmisión"
             name="transmision"
             options={transmissions}
@@ -484,6 +500,7 @@ const VehiclePage = () => {
             onChange={handleChange}
           />
           <FormInput
+            id="numeroAsientos"
             label="Número de Asientos"
             name="numeroAsientos"
             type="number"
@@ -491,6 +508,7 @@ const VehiclePage = () => {
             onChange={handleChange}
           />
           <FormInput
+            id="estado"
             label="Estado"
             name="estado"
             options={statuses}
@@ -498,6 +516,7 @@ const VehiclePage = () => {
             onChange={handleChange}
           />
           <FormInput
+            id="UltimoChequeo"
             label="Último Chequeo"
             name="UltimoChequeo"
             type="date"
@@ -510,6 +529,7 @@ const VehiclePage = () => {
       </div>*/}
           <div className="col-span-full">
             <TarifaSelect
+              id="tarifas"
               tarifas={availableTarifas}
               selectedTarifas={
                 Array.isArray(formData.tarifas) ? formData.tarifas : []
@@ -520,6 +540,7 @@ const VehiclePage = () => {
 
           <div className="col-span-full mt-4">
             <button
+              id="submit-button"
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
@@ -530,6 +551,7 @@ const VehiclePage = () => {
       </Modal>
 
       <button
+      id="addVehicle"
       onClick={()=> setIsModalOpen(true)}
       className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
       >
@@ -589,6 +611,7 @@ const VehiclePage = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
+                    id="edit-button"
                     onClick={() => handleEdit(vehicle)}
                     className="text-indigo-600 hover:text-indigo-900 mr-4"
                     type="button"
@@ -596,6 +619,7 @@ const VehiclePage = () => {
                     Editar
                   </button>
                   <button
+                    id="delete-button"
                     onClick={() => handleDelete(vehicle.placa)}
                     className="text-red-600 hover:text-red-900"
                     type="button"
