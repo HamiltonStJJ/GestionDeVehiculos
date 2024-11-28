@@ -155,6 +155,7 @@ const Customer: React.FC = () => {
         </select>
 
         <input
+          id="price-input"
           type="text"
           placeholder="Precio Máximo (ej. 20000)"
           value={filterPrice}
@@ -165,6 +166,7 @@ const Customer: React.FC = () => {
         />
 
         <select
+          id="status-cmbx"
           value={filterAvailability}
           onChange={(e) => setFilterAvailability(e.target.value)}
           className="p-2 border rounded-lg text-gray-800 bg-white"
@@ -215,7 +217,7 @@ const Customer: React.FC = () => {
               <p className="text-xl font-bold text-gray-900">
               ${vehicle.tarifas[0]?.tarifa || 0} al día
               </p>
-              <button
+              <button id="reservar-btn"
                 onClick={() => openModal(vehicle)}
                 className="bg-black text-white w-full py-2 mt-4 rounded-lg hover:bg-[#201E43] transition duration-200"
               >
@@ -234,7 +236,7 @@ const Customer: React.FC = () => {
       {selectedVehicle && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative">
-            <button
+            <button id="close"
               onClick={closeModal}
               className="absolute top-2 right-2 text-2xl font-bold text-gray-600 hover:text-red-600"
             >
