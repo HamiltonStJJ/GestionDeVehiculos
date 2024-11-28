@@ -21,7 +21,7 @@ login_button.click()
 
 # Esperar a que cargue la página después del inicio de sesión
 time.sleep(3)
-
+'''
 # Paso 2: Acceder al formulario de agregar vehículo
 add_vehicle_button = driver.find_element(By.ID, "addVehicle")
 add_vehicle_button.click()
@@ -30,6 +30,7 @@ add_vehicle_button.click()
 time.sleep(3)
 
 # Paso 3: Llenar el formulario
+
 driver.find_element(By.ID, "nombre").send_keys("Toyota Corolla")
 selectMarca = driver.find_element(By.ID, "marca")
 select = Select(selectMarca)
@@ -55,27 +56,37 @@ time.sleep(2)
 
 submit_button = driver.find_element(By.ID, "submit-button")
 submit_button.click()
-
-time.sleep(3)
-
-# 
 '''
-# Seleccionar opciones de desplegables
-Select(driver.find_element(By.ID, "tipoCombustible")).select_by_visible_text("Gasolina")
-Select(driver.find_element(By.ID, "transmision")).select_by_visible_text("Automática")
-driver.find_element(By.ID, "numeroAsientos").send_keys("5")
-
-
-
-# Seleccionar tarifas
-# Nota: Ajustar este paso si las tarifas tienen un manejo diferente (como checkboxes o listas dinámicas)
-
-
-# Paso 4: Enviar el formulario
-
-
-# Esperar el resultado o redirección
 time.sleep(3)
 
-# Cerrar el navegador
-driver.quit()'''
+#Editar vehiculo
+edit_vehicle_buttons = driver.find_elements(By.ID, "edit-button")
+edit_vehicle_buttons[-1].click()
+time.sleep(2)
+
+
+# Modificar los datos del vehículo
+driver.find_element(By.ID, "nombre").clear()
+driver.find_element(By.ID, "nombre").send_keys("Honda Civic")
+driver.find_element(By.ID, "modelo").clear()
+driver.find_element(By.ID, "modelo").send_keys("2022")
+driver.find_element(By.ID, "kilometraje").clear()
+driver.find_element(By.ID, "kilometraje").send_keys("12000")
+selectColor = driver.find_element(By.ID, "color")
+select = Select(selectColor)
+select.select_by_visible_text("Rojo")
+
+time.sleep(2)
+
+# Enviar los cambios
+submit_button = driver.find_element(By.ID, "submit-button")
+submit_button.click()
+
+time.sleep(3)
+
+# Eliminar vehículo
+delete_vehicle_buttons = driver.find_elements(By.ID, "delete-button")
+delete_vehicle_buttons[-1].click()
+time.sleep(2)
+
+
