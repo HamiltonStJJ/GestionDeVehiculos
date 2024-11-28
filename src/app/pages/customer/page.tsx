@@ -123,6 +123,7 @@ const Customer: React.FC = () => {
       {/* Botón de Cerrar Sesión */}
       <div className="flex justify-end mb-4">
         <button
+          id="logout-btn"
           onClick={logout}
           className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black-600 transition duration-200" 
         >
@@ -177,6 +178,7 @@ const Customer: React.FC = () => {
         </select>
 
         <select
+          id="year-cmbx"
           value={filterYear}
           onChange={(e) => setFilterYear(e.target.value === "Todos" ? "Todos" : Number(e.target.value))}
           className="p-2 border rounded-lg text-gray-800 bg-white"
@@ -189,7 +191,8 @@ const Customer: React.FC = () => {
           ))}
         </select>
 
-        <button
+        <button 
+          id="clear-btn"
           onClick={resetFilters}
           className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
         >
