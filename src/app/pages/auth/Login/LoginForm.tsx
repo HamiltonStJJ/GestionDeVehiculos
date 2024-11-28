@@ -34,7 +34,7 @@ export default function LoginForm() {
       <InputField label="Correo electrónico" id="email-input" type="email"  value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
       <InputField label="Contraseña" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <AuthButton text="Ingresar" onClick={() => handleSubmit} />
+      <AuthButton id="login-btn" text="Ingresar" onClick={() => handleSubmit} />
     </form>
   );  
 }
