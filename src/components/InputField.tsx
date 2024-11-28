@@ -4,17 +4,20 @@ export default function InputField({
     value,
     onChange,
     placeholder,
+    id,
   }: {
     label: string;
     type?: string;
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     placeholder?: string;
+    id ?: string;
   }) {
     return (
       <div>
         <label className="block text-sm font-medium text-gray-800">{label}</label>
         <input
+          id={id}
           type={type}
           value={value}
           onChange={onChange}
