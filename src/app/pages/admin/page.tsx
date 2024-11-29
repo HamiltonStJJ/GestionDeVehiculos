@@ -151,6 +151,7 @@ return (
       className="relative bg-white rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto p-6 md:p-8"
     >
       <button
+        id="close-modal"
         className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 focus:outline-none"
         onClick={onClose}
         aria-label="Close Modal"
@@ -322,7 +323,7 @@ const VehiclePage = () => {
           body: JSON.stringify(bodyData),
         });
   
-        if (!response.ok) throw new Error("Failed to create vehicle");
+        if (!response.ok) throw new Error("Failed to create 1 vehicle");
         toast.success("Vehicle created successfully!");
       }
   
@@ -345,7 +346,8 @@ const VehiclePage = () => {
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving vehicle:", error);
-      toast.error("Error saving vehicle");
+      toast.error("Error al guardar el vehículo.");
+      setIsModalOpen(false);
     }
   };
   

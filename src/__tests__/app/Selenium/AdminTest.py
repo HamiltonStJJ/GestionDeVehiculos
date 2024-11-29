@@ -21,7 +21,7 @@ login_button.click()
 
 # Esperar a que cargue la página después del inicio de sesión
 time.sleep(3)
-'''
+
 # Paso 2: Acceder al formulario de agregar vehículo
 add_vehicle_button = driver.find_element(By.ID, "addVehicle")
 add_vehicle_button.click()
@@ -56,7 +56,7 @@ time.sleep(2)
 
 submit_button = driver.find_element(By.ID, "submit-button")
 submit_button.click()
-'''
+
 time.sleep(3)
 
 #Editar vehiculo
