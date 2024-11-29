@@ -27,15 +27,15 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <InputField label="Cédula" type="text" value={cedula} onChange={(e) => setCedula(e.target.value)} placeholder="Cédula" />
-      <InputField label="Nombre" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" />
-      <InputField label="Apellido" type="text" value={apellido} onChange={(e) => setApellido(e.target.value)} placeholder="Apellido" />
-      <InputField label="Dirección" type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Dirección" />
-      <InputField label="Teléfono" type="text" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="Teléfono" />
-      <InputField label="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
-      <InputField label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+      <InputField id="cedula" label="Cédula" type="text" value={cedula} onChange={(e) => setCedula(e.target.value)} placeholder="Cédula" />
+      <InputField id="nombre" label="Nombre" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" />
+      <InputField id="apellido" label="Apellido" type="text" value={apellido} onChange={(e) => setApellido(e.target.value)} placeholder="Apellido" />
+      <InputField id="direccion" label="Dirección" type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Dirección" />
+      <InputField id="telefono" label="Teléfono" type="text" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="Teléfono" />
+      <InputField id="email" label="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
+      <InputField id="password" label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <AuthButton text="Registrarse" onClick={()=>handleSubmit} />
+      <AuthButton id="register-btn" text="Registrarse" onClick={()=>handleSubmit} />
     </form>
   );
 }
