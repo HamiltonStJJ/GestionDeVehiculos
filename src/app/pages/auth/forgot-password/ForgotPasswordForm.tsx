@@ -23,10 +23,10 @@ export default function ForgotPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <InputField label="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
+      <InputField id="correo" label="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
       {error && <p className="text-red-500 text-sm">{error}</p>}
       {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
-      <AuthButton text="Recuperar ahora" onClick={()=> handleSubmit} />
+      <AuthButton id="recuperar-btn" text="Recuperar ahora" onClick={()=> handleSubmit} />
     </form>
   );
 }
