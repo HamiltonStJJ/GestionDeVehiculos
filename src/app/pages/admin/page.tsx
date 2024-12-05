@@ -378,7 +378,7 @@ const VehiclePage = () => {
     setFormData({
       nombre: "",
       marca: "",
-      modelo: "",
+     modelo: "",
       anio: 2024,
       color: "",
       imagen: "",
