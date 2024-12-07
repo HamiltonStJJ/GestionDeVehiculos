@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/services/apiClient";
+import VehicleSkeleton from "@/components/VehicleSkeleton";
 
 interface Vehicle {
   _id: string;
@@ -35,8 +36,10 @@ const Customer: React.FC = () => {
   const [filterYear, setFilterYear] = useState<number | "Todos">("Todos");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     fetch("http://localhost:8080/cars", {
       method: "GET",
       headers: {
@@ -58,7 +61,12 @@ const Customer: React.FC = () => {
       })
       .catch((error) => {
         console.error("Error al cargar los datos:", error);
-      });
+      })
+      .finally(() => {
+      setIsLoading(false);
+      }
+      )
+      ;
   }, []);
   
 
@@ -201,6 +209,9 @@ const Customer: React.FC = () => {
       </div>
 
       {/* Lista de vehículos filtrados */}
+      {isLoading ? (
+        <VehicleSkeleton />
+      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredVehicles.length > 0 ? (
           filteredVehicles.map((vehicle) => (
@@ -234,6 +245,7 @@ const Customer: React.FC = () => {
           </p>
         )}
       </div>
+      )}
 
       {/* Modal */}
       {selectedVehicle && (

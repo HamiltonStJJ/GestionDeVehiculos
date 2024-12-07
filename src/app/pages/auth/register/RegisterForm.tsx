@@ -14,14 +14,19 @@ export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
+    setError(null);
     try {
       await register({ cedula, nombre, apellido, direccion, telefono, email, password });
       alert("Registro completado con éxito.");
     } catch (err) {
       setError("Hubo un error en el registro.");
+    } finally{
+      setIsLoading(false);
     }
   };
 
@@ -35,7 +40,7 @@ export default function RegisterForm() {
       <InputField id="email" label="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
       <InputField id="password" label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <AuthButton id="register-btn" text="Registrarse" onClick={()=>handleSubmit} />
+      <AuthButton id="register-btn" text="Registrarse" isLoading={isLoading} onClick={()=>handleSubmit} />  
     </form>
   );
 }

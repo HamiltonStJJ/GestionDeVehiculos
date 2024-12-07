@@ -2,6 +2,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { Helmet } from "react-helmet";
 
 interface Maintenance {
   _id: string;
@@ -141,7 +142,9 @@ const MaintenancePage = () => {
   };
 
   return (
+    
     <div className="container mx-auto p-4">
+      
       <h1 className="text-3xl font-bold mb-6">
         Mantenimientos del Vehículo {vehiclePlaca}
       </h1>
