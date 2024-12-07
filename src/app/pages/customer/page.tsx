@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { API_URL } from "@/services/apiClient";
+import VehicleSkeleton from "@/components/VehicleSkeleton";
 
 interface Vehicle {
   _id: string;
@@ -13,7 +13,6 @@ interface Vehicle {
   anio: number;
   color: string;
   placa: string;
-  precio: number;
   kilometrage: number;
   tipoCombustible: string;
   transmision: string;
@@ -21,7 +20,11 @@ interface Vehicle {
   estado: string;
   UltimoChequeo: string;
   imagen: string;
+  tarifas: {
+    tarifa: number;
+  }[]; // Cambiado para reflejar el formato del array de tarifas
 }
+
 
 const Customer: React.FC = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -32,9 +35,12 @@ const Customer: React.FC = () => {
   const [filterYear, setFilterYear] = useState<number | "Todos">("Todos");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
-    fetch("http://localhost:8080/cars", {
+    setIsLoading(true);
+    fetch(`${API_URL}/cars`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -43,13 +49,26 @@ const Customer: React.FC = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setVehicles(data);
-        setFilteredVehicles(data);
+        const filteredData = data
+          .filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado")
+          .map((vehicle: Vehicle) => ({
+            ...vehicle,
+            precio: vehicle.tarifas[0]?.tarifa || 0, // Toma el precio de la primera tarifa, o 0 si no hay tarifas
+          }));
+  
+        setVehicles(filteredData);
+        setFilteredVehicles(filteredData);
       })
       .catch((error) => {
         console.error("Error al cargar los datos:", error);
-      });
+      })
+      .finally(() => {
+      setIsLoading(false);
+      }
+      )
+      ;
   }, []);
+  
 
   const uniqueBrands = Array.from(new Set(vehicles.map((vehicle) => vehicle.marca)));
   const uniqueYears = Array.from(new Set(vehicles.map((vehicle) => vehicle.anio)));
@@ -62,7 +81,7 @@ const Customer: React.FC = () => {
     }
 
     if (filterPrice > 0) {
-      filtered = filtered.filter((vehicle) => vehicle.precio <= filterPrice);
+      filtered = filtered.filter((vehicle) => vehicle.tarifas[0]?.tarifa <= filterPrice);
     }
 
     if (filterAvailability === "Disponible") {
@@ -93,7 +112,7 @@ const Customer: React.FC = () => {
 
   const logout = async () => {
     try {
-      const response = await fetch("http://localhost:8080/auth/logout", {
+      const response = await fetch(`${API_URL}/auth/logout`, {
         method: "POST",
         credentials: "include", // Para incluir las cookies en la solicitud
       });
@@ -112,6 +131,7 @@ const Customer: React.FC = () => {
       {/* Botón de Cerrar Sesión */}
       <div className="flex justify-end mb-4">
         <button
+          id="logout-btn"
           onClick={logout}
           className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black-600 transition duration-200" 
         >
@@ -144,6 +164,7 @@ const Customer: React.FC = () => {
         </select>
 
         <input
+          id="price-input"
           type="text"
           placeholder="Precio Máximo (ej. 20000)"
           value={filterPrice}
@@ -154,6 +175,7 @@ const Customer: React.FC = () => {
         />
 
         <select
+          id="status-cmbx"
           value={filterAvailability}
           onChange={(e) => setFilterAvailability(e.target.value)}
           className="p-2 border rounded-lg text-gray-800 bg-white"
@@ -164,6 +186,7 @@ const Customer: React.FC = () => {
         </select>
 
         <select
+          id="year-cmbx"
           value={filterYear}
           onChange={(e) => setFilterYear(e.target.value === "Todos" ? "Todos" : Number(e.target.value))}
           className="p-2 border rounded-lg text-gray-800 bg-white"
@@ -176,7 +199,8 @@ const Customer: React.FC = () => {
           ))}
         </select>
 
-        <button
+        <button 
+          id="clear-btn"
           onClick={resetFilters}
           className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
         >
@@ -185,6 +209,9 @@ const Customer: React.FC = () => {
       </div>
 
       {/* Lista de vehículos filtrados */}
+      {isLoading ? (
+        <VehicleSkeleton />
+      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredVehicles.length > 0 ? (
           filteredVehicles.map((vehicle) => (
@@ -202,9 +229,9 @@ const Customer: React.FC = () => {
                 className="w-full h-40 object-cover rounded-lg my-4"
               />
               <p className="text-xl font-bold text-gray-900">
-                ${vehicle.precio} al día
+              ${vehicle.tarifas[0]?.tarifa || 0} al día
               </p>
-              <button
+              <button id="reservar-btn"
                 onClick={() => openModal(vehicle)}
                 className="bg-black text-white w-full py-2 mt-4 rounded-lg hover:bg-[#201E43] transition duration-200"
               >
@@ -218,12 +245,13 @@ const Customer: React.FC = () => {
           </p>
         )}
       </div>
+      )}
 
       {/* Modal */}
       {selectedVehicle && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative">
-            <button
+            <button id="close"
               onClick={closeModal}
               className="absolute top-2 right-2 text-2xl font-bold text-gray-600 hover:text-red-600"
             >
@@ -259,7 +287,7 @@ const Customer: React.FC = () => {
                 <strong>Placa:</strong> {selectedVehicle.placa}
               </p>
               <p className="text-gray-700">
-                <strong>Precio por día:</strong> ${selectedVehicle.precio}
+                <strong>Precio por día:</strong> ${selectedVehicle.tarifas[0]?.tarifa || 0}
               </p>
               <p className="text-gray-700">
                 <strong>Kilometraje:</strong> {selectedVehicle.kilometrage} km
