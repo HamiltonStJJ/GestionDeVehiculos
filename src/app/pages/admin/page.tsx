@@ -2,6 +2,7 @@
 import { toast } from "react-toastify";
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import TarifaModal  from "./tarifaCRUD";
+import {useRouter} from "next/navigation";
 
 interface Tarifa {
   _id: string;
@@ -180,6 +181,7 @@ const VehiclePage = () => {
   const fuelTypes = ["Gasolina", "Diesel", "Híbrido", "Eléctrico"];
   const transmissions = ["Manual", "Automatica"];
   const statuses = ["Disponible", "Alquilado"];
+  const router = useRouter();
   
 
   // Estados
@@ -628,6 +630,14 @@ const VehiclePage = () => {
                   >
                     Eliminar
                   </button>
+                    <button
+                    id="maintenance-button"
+                    onClick={() => router.push(`/pages/admin/maintenance?vehiclePlaca=${vehicle.placa}&vehicleId=${vehicle._id}`)} 
+                    className="ml-2 text-yellow-600 hover:text-yellow-900"
+                    type="button"
+                    >
+                    Mantenimiento
+                    </button>
                 </td>
               </tr>
             ))}
