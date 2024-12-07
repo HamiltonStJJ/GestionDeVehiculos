@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { API_URL } from "@/services/apiClient";
 import VehicleSkeleton from "@/components/VehicleSkeleton";
 
 interface Vehicle {
@@ -37,10 +36,11 @@ const Customer: React.FC = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     setIsLoading(true);
-    fetch("http://localhost:8080/cars", {
+    fetch(`${API_URL}/cars`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -112,7 +112,7 @@ const Customer: React.FC = () => {
 
   const logout = async () => {
     try {
-      const response = await fetch("http://localhost:8080/auth/logout", {
+      const response = await fetch(`${API_URL}/auth/logout`, {
         method: "POST",
         credentials: "include", // Para incluir las cookies en la solicitud
       });

@@ -190,6 +190,7 @@ const VehiclePage = () => {
   const [availableTarifas, setAvailableTarifas] = useState<Tarifa[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTarifaModalOpen, setIsTarifaModalOpen] = useState(false);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const [formData, setFormData] = useState<FormData>({
     nombre: "",
@@ -223,7 +224,7 @@ const VehiclePage = () => {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/cars/`, {
+        const response = await fetch(`${API_URL}/cars/`, {
           method: "GET",
           ...fetchConfig,
         });
@@ -245,7 +246,7 @@ const VehiclePage = () => {
   useEffect(() => {
     const fetchTarifas = async () => {
       try {
-        const response = await fetch("http://localhost:8080/rates/", {
+        const response = await fetch(`${API_URL}/rates/`, {
           method: "GET",
           ...fetchConfig,
         });
@@ -309,7 +310,7 @@ const VehiclePage = () => {
         }
   
         // PUT request to update the vehicle
-        response = await fetch(`http://localhost:8080/cars/${formData.placa}`, {
+        response = await fetch(`${API_URL}/cars/${formData.placa}`, {
           method: "PUT",
           ...fetchConfig,
           body: JSON.stringify(bodyData),
@@ -319,7 +320,7 @@ const VehiclePage = () => {
         toast.success("Vehicle updated successfully!");
       } else {
         // POST request to create a new vehicle
-        response = await fetch("http://localhost:8080/cars/", {
+        response = await fetch(`${API_URL}/cars/`, {
           method: "POST",
           ...fetchConfig,
           body: JSON.stringify(bodyData),
@@ -330,7 +331,7 @@ const VehiclePage = () => {
       }
   
       // Only refetch vehicles if the create/update was successful
-      const updatedResponse = await fetch("http://localhost:8080/cars/", {
+      const updatedResponse = await fetch(`${API_URL}/cars/`, {
         method: "GET",
         ...fetchConfig,
       });
@@ -398,7 +399,7 @@ const VehiclePage = () => {
 
   const handleDelete = async (placa: string) => {
     try {
-      const response = await fetch(`http://localhost:8080/cars/${placa}`, {
+      const response = await fetch(`${API_URL}/cars/${placa}`, {
         method: "DELETE",
         ...fetchConfig,
       });

@@ -18,6 +18,7 @@ const MaintenancePage = () => {
   const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
   const [formData, setFormData] = useState({ fecha: "", descripcion: "" });
   const [isEditing, setIsEditing] = useState<string | null>(null);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const fetchConfig = {
     headers: {
@@ -33,9 +34,9 @@ const MaintenancePage = () => {
       if (!vehiclePlaca) return;
   
       try {
-        console.log("Iniciando fetch para:", `http://localhost:8080/cars/maintenance/${vehiclePlaca}`);
+        console.log("Iniciando fetch para:", `${API_URL}/cars/maintenance/${vehiclePlaca}`);
         const response = await fetch(
-          `http://localhost:8080/cars/maintenance/${vehiclePlaca}`,
+          `${API_URL}/cars/maintenance/${vehiclePlaca}`,
           {
             method: "GET",
             ...fetchConfig,
@@ -71,8 +72,8 @@ const MaintenancePage = () => {
 
     try {
       const url = isEditing
-        ? `http://localhost:8080/cars/maintenance/${vehicleId}`
-        : `http://localhost:8080/cars/maintenance/${vehiclePlaca}`;
+        ? `${API_URL}/cars/maintenance/${vehicleId}`
+        : `${API_URL}/cars/maintenance/${vehiclePlaca}`;
 
       const method = isEditing ? "PUT" : "POST";
       const response = await fetch(url, {
@@ -88,7 +89,7 @@ const MaintenancePage = () => {
 
       // Refresh the list of maintenances
       const updatedResponse = await fetch(
-        `http://localhost:8080/cars/maintenance/${vehiclePlaca}`,
+        `${API_URL}/cars/maintenance/${vehiclePlaca}`,
         {
           method: "GET",
           ...fetchConfig,
@@ -115,7 +116,7 @@ const MaintenancePage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/cars/maintenance/${vehiclePlaca}/${id}`,
+        `${API_URL}/cars/maintenance/${vehiclePlaca}/${id}`,
         {
           method: "DELETE",
           ...fetchConfig,
