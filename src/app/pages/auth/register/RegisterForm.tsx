@@ -4,6 +4,7 @@ import { useState } from "react";
 import { register, verifyEmail } from "@/services/authService"; // Añade verifyEmail
 import InputField from "@/components/InputField";
 import AuthButton from "@/components/AuthButton";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
   const [cedula, setCedula] = useState("");
@@ -17,6 +18,7 @@ export default function RegisterForm() {
   const [isVerificationStep, setIsVerificationStep] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -37,7 +39,24 @@ export default function RegisterForm() {
     setIsLoading(true);
     setError(null);
     try {
-      await verifyEmail({ cedula, nombre, apellido, direccion, telefono, email, password, verificationCode });
+      const response = await verifyEmail({
+        cedula,
+        nombre,
+        apellido,
+        direccion,
+        telefono,
+        email,
+        password,
+        verificationCode,
+      });
+
+      // Guardar los datos del usuario en localStorage
+      localStorage.setItem("user", typeof response === "string" ? response : JSON.stringify(response));
+      if(response.rol === 'admin') {
+        router.push("/pages/admin");
+      } else {
+        router.push("/pages/customer");
+      }
       
     } catch (err) {
       setError("El código de verificación es inválido o expiró.");
