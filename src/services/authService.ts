@@ -68,6 +68,25 @@ export async function register(data: {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+    credentials: "include",
+  });
+}
+
+export async function verifyEmail(data:{
+  cedula: string;
+  nombre: string;
+  apellido: string;
+  direccion: string;
+  telefono: string;
+  email: string;
+  password: string;
+  verificationCode: string;
+}){
+  return apiRequest("/auth/register/verify",{
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    credentials: "include",
   });
 }
 

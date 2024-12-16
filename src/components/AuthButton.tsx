@@ -7,7 +7,7 @@ export default function AuthButton({
     isLoading = false
   }: {
     text: string;
-    onClick: () => void;
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
     id?: string;
     isLoading?: boolean;
   }) {
