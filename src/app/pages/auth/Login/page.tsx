@@ -33,13 +33,13 @@ export default function LoginPage() {
 
         {/* Navegación hacia Registro y Recuperar Contraseña */}
         <div className="mt-4 text-center">
-          <Link href="pages/auth/register" legacyBehavior>
+          <Link href="register" legacyBehavior>
             <a className="text-gray-600 underline text-sm hover:text-[#4A628A] transition duration-200 ">
               ¿No tienes cuenta? Registrarse
             </a>
           </Link>
           <br />
-          <Link href="pages/auth/forgot-password" legacyBehavior>
+          <Link href="forgot-password" legacyBehavior>
             <a className="text-gray-600 underline text-sm hover:text-[#4A628A] transition duration-200 mt-2">
               ¿Olvidaste tu contraseña?
             </a>

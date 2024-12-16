@@ -240,9 +240,9 @@ const Customer: React.FC = () => {
             </div>
           ))
         ) : (
-          <p className="text-center text-red-500 font-bold">
+            <p className="text-center col-span-full text-red-500 font-bold">
             No hay vehículos que coincidan con los filtros seleccionados.
-          </p>
+            </p>
         )}
       </div>
       )}

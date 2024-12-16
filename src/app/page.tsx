@@ -1,7 +1,12 @@
-// src/app/page.tsx o pages/index.tsx
-import LoginPage from "@/app/pages/auth/Login/page"; // Importa la página de login
-
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 export default function Home() {
+  const router = useRouter();
 
-  return <LoginPage />; // Muestra la página de login
+  useEffect(() => {
+    router.push("/pages/auth/Login");
+  }, [router]);
+
+  return null; // No renderiza nada mientras redirige
 }
