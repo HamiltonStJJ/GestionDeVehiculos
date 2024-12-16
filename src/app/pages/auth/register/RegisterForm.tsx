@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { register, verifyEmail } from "@/services/authService"; // Añade verifyEmail
+import { useState, useEffect } from "react";
+import { login, register, verifyEmail } from "@/services/authService";
 import InputField from "@/components/InputField";
 import AuthButton from "@/components/AuthButton";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,19 @@ export default function RegisterForm() {
   const [isVerificationStep, setIsVerificationStep] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(60);
+  const [canResend, setCanResend] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isVerificationStep && resendTimer > 0) {
+      timer = setTimeout(() => setResendTimer((prev) => prev - 1), 1000);
+    } else if (resendTimer === 0) {
+      setCanResend(true);
+    }
+    return () => clearTimeout(timer);
+  }, [isVerificationStep, resendTimer]);
 
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -27,9 +39,25 @@ export default function RegisterForm() {
     setError(null);
     try {
       await register({ cedula, nombre, apellido, direccion, telefono, email, password });
-      setIsVerificationStep(true); // Cambia a la fase de verificación
+      setIsVerificationStep(true);
+      setResendTimer(60); // Reiniciar temporizador
+      setCanResend(false);
     } catch (err) {
       setError("Hubo un error al enviar el registro.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await register({ cedula, nombre, apellido, direccion, telefono, email, password });
+      setResendTimer(60); // Reinicia el temporizador
+      setCanResend(false);
+    } catch (err) {
+      setError("No se pudo reenviar el código. Inténtalo más tarde.");
     } finally {
       setIsLoading(false);
     }
@@ -51,14 +79,14 @@ export default function RegisterForm() {
         verificationCode,
       });
 
-      // Guardar los datos del usuario en localStorage
-      localStorage.setItem("user", typeof response === "string" ? response : JSON.stringify(response));
-      if(response.rol === 'admin') {
+      const result = await login(email, password);
+      if (result.status === "TEMPORARY_PASSWORD") {
+        router.push(`pages/auth/change-password?userId=${result.userData._id}`);
+      } else if (result.userData.rol === "admin") {
         router.push("/pages/admin");
       } else {
         router.push("/pages/customer");
       }
-      
     } catch (err) {
       setError("El código de verificación es inválido o expiró.");
     } finally {
@@ -80,17 +108,27 @@ export default function RegisterForm() {
         </>
       ) : (
         <>
-        <p className="text-gray-600 text-center mb-4">
-          Ingresa el código de 6 dígitos enviado a tu correo.
-        </p>
-        <VerificationCodeInput
-          value={verificationCode}
-          onChange={(value) => setVerificationCode(value)}
-        />
-      </>
+          <p className="text-gray-600 text-center mb-4">
+            Ingresa el código de 6 dígitos enviado a tu correo.
+          </p>
+          <VerificationCodeInput value={verificationCode} onChange={(value) => setVerificationCode(value)} />
+          <div className="text-center mt-4">
+            {canResend ? (
+              <button
+                type="button"
+                onClick={handleResendCode}
+                className="text-blue-600 hover:underline"
+              >
+                Reenviar código
+              </button>
+            ) : (
+              <p className="text-gray-500">Puedes reenviar el código en {resendTimer} segundos</p>
+            )}
+          </div>
+        </>
       )}
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <AuthButton id="register-btn" text={isVerificationStep ? "Verificar Código" : "Registrarse"} isLoading={isLoading} onClick={(e: React.MouseEvent<HTMLButtonElement>) => isVerificationStep ? handleVerify(e) : handleRegister(e)} />
+      <AuthButton id="register-btn" text={isVerificationStep ? "Verificar Código" : "Registrarse"} isLoading={isLoading} onClick={isVerificationStep ? handleVerify : handleRegister} />
     </form>
   );
 }
