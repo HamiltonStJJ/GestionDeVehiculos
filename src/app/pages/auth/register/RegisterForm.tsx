@@ -5,6 +5,7 @@ import { register, verifyEmail } from "@/services/authService"; // Añade verify
 import InputField from "@/components/InputField";
 import AuthButton from "@/components/AuthButton";
 import { useRouter } from "next/navigation";
+import VerificationCodeInput from "./VerificationCodeInput";
 
 export default function RegisterForm() {
   const [cedula, setCedula] = useState("");
@@ -78,7 +79,15 @@ export default function RegisterForm() {
           <InputField id="password" label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
         </>
       ) : (
-        <InputField id="verificationCode" label="Código de verificación" type="text" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} placeholder="Ingresa el código enviado a tu correo" />
+        <>
+        <p className="text-gray-600 text-center mb-4">
+          Ingresa el código de 6 dígitos enviado a tu correo.
+        </p>
+        <VerificationCodeInput
+          value={verificationCode}
+          onChange={(value) => setVerificationCode(value)}
+        />
+      </>
       )}
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <AuthButton id="register-btn" text={isVerificationStep ? "Verificar Código" : "Registrarse"} isLoading={isLoading} onClick={(e: React.MouseEvent<HTMLButtonElement>) => isVerificationStep ? handleVerify(e) : handleRegister(e)} />
