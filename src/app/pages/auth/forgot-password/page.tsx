@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
         {/* Enlace para volver a Iniciar sesión */}
         <div className="mt-4 text-center">
           <Link
-            href="/"
+            href="Login"
             className="text-gray-600 underline text-sm hover:text-[#4A628A] transition duration-200"
           >
             Volver a iniciar sesión

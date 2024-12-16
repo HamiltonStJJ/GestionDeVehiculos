@@ -20,7 +20,7 @@ export default function RegisterPage() {
 
         {/* Enlace para volver a Iniciar sesión */}
         <div className="mt-4 text-center">
-          <Link href="/"
+          <Link href="Login"
           className="text-gray-600 underline text-sm hover:text-[#4A628A] transition duration-200">
             
               ¿Ya tienes cuenta? Iniciar sesión
