@@ -111,35 +111,9 @@ const Customer: React.FC = () => {
     setSelectedVehicle(null);
   };
 
-  const logout = async () => {
-    try {
-      const response = await fetch(`${API_URL}/auth/logout`, {
-        method: "POST",
-        credentials: "include", // Para incluir las cookies en la solicitud
-      });
-      if (response.ok) {
-        router.push("/"); // Redirige a la página de inicio después de cerrar sesión
-      } else {
-        console.error("Error al cerrar sesión");
-      }
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-  };
 
   return (
     <>
-    {/* Botón de Cerrar Sesión */}
-    <div className="flex justify-end mb-4">
-      <button
-        id="logout-btn"
-        onClick={logout}
-        className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black-600 transition duration-200"
-      >
-        Cerrar Sesión
-      </button>
-    </div>
-
     <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
       Catálogo de Vehículos
     </h1>
