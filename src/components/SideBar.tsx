@@ -1,49 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import Link from "next/link";
-import { LogOut, Menu, X, LayoutDashboard, Users, FileText, Settings, Home, Calendar, UserCircle, HelpCircle, ChevronRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import {
+  LogOut,
+  Menu,
+  X,
+  LayoutDashboard,
+  Users,
+  FileText,
+  Settings,
+  Home,
+  Calendar,
+  UserCircle,
+  HelpCircle,
+  ChevronRight,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   role: "admin" | "customer";
 }
 
-
 const Sidebar: React.FC<SidebarProps> = ({ role }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const Router = useRouter();
 
   const logout = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch(`${API_URL}/auth/logout`, {
         method: "POST",
-        credentials: "include", // Para incluir las cookies en la solicitud
+        credentials: "include",
       });
       if (response.ok) {
-        Router.push("/"); // Redirige a la página de inicio después de cerrar sesión
+        Router.push("/");
       } else {
         console.error("Error al cerrar sesión");
       }
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-
-  const menuItems = role === "admin"
-    ? [
-      { name: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={20} /> },
-      { name: "Gestionar Usuarios", href: "/admin/users", icon: <Users size={20} /> },
-      { name: "Reportes", href: "/admin/reports", icon: <FileText size={20} /> },
-      { name: "Configuración", href: "/admin/settings", icon: <Settings size={20} /> },
-    ]
-    : [
-      { name: "Inicio", href: "/pages/customer", icon: <Home size={20} /> },
-      { name: "Mis Reservas", href: "/pages/customer/reservations", icon: <Calendar size={20} /> },
-      { name: "Perfil", href: "/customer/profile", icon: <UserCircle size={20} /> },
-      { name: "Ayuda", href: "/customer/help", icon: <HelpCircle size={20} /> },
-    ];
+  const menuItems =
+    role === "admin"
+      ? [
+          {
+            name: "Dashboard",
+            href: "/admin/dashboard",
+            icon: <LayoutDashboard size={20} />,
+          },
+          {
+            name: "Gestionar Usuarios",
+            href: "/admin/users",
+            icon: <Users size={20} />,
+          },
+          {
+            name: "Reportes",
+            href: "/admin/reports",
+            icon: <FileText size={20} />,
+          },
+          {
+            name: "Configuración",
+            href: "/admin/settings",
+            icon: <Settings size={20} />,
+          },
+        ]
+      : [
+          { name: "Inicio", href: "/pages/customer", icon: <Home size={20} /> },
+          {
+            name: "Mis Reservas",
+            href: "/pages/customer/reservations",
+            icon: <Calendar size={20} />,
+          },
+          {
+            name: "Perfil",
+            href: "/customer/profile",
+            icon: <UserCircle size={20} />,
+          },
+          {
+            name: "Ayuda",
+            href: "/customer/help",
+            icon: <HelpCircle size={20} />,
+          },
+        ];
 
   return (
     <>
@@ -65,7 +109,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
           overflow-y-auto
           lg:translate-x-0
           transition-all duration-300 ease-in-out
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${
+            isMobileMenuOpen
+              ? "translate-x-0"
+              : "-translate-x-full lg:translate-x-0"
+          }
           z-40
         `}
       >
@@ -81,15 +129,21 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
           <nav className="flex-1 px-4 py-2">
             <ul className="space-y-2">
               {menuItems.map((item, index) => (
-                <li key={index}
-                    onMouseEnter={() => setIsHovered(index)}
-                    onMouseLeave={() => setIsHovered(null)}>
+                <li
+                  key={index}
+                  onMouseEnter={() => setIsHovered(index)}
+                  onMouseLeave={() => setIsHovered(null)}
+                >
                   <Link
                     href={item.href}
                     className={`
                       flex items-center p-3 rounded-lg
                       transition-all duration-200
-                      ${isHovered === index ? 'bg-[#134B70] translate-x-2' : 'hover:bg-gray-700'}
+                      ${
+                        isHovered === index
+                          ? "bg-[#134B70] translate-x-2"
+                          : "hover:bg-gray-700"
+                      }
                     `}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -97,10 +151,14 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
                       {item.icon}
                     </span>
                     <span className="flex-1">{item.name}</span>
-                    <ChevronRight 
-                      size={16} 
+                    <ChevronRight
+                      size={16}
                       className={`transition-all duration-200 
-                        ${isHovered === index ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}
+                        ${
+                          isHovered === index
+                            ? "opacity-100 translate-x-0"
+                            : "opacity-0 -translate-x-2"
+                        }`}
                     />
                   </Link>
                 </li>
@@ -110,9 +168,22 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
 
           {/* Footer with Logout Button */}
           <div className="p-4 border-t border-gray-700">
-            <button className="w-full bg-gray-700 text-white py-3 px-4 rounded-lg hover:bg-[#134B70] transition-all duration-200 flex items-center justify-center space-x-2 group" onClick={logout}>
-              <LogOut size={20} className="group-hover:rotate-12 transition-transform duration-200" />
-              <span>Cerrar Sesión</span>
+            <button
+              onClick={logout}
+              disabled={isLoading}
+              className="w-full bg-gray-700 text-white py-3 px-4 rounded-lg hover:bg-[#134B70] transition-all duration-200 flex items-center justify-center space-x-2 group"
+            >
+              {isLoading ? (
+                <span className="loading loading-dots loading-md"></span>
+              ) : (
+                <>
+                  <LogOut
+                    size={20}
+                    className="group-hover:rotate-12 transition-transform duration-200"
+                  />
+                  <span>Cerrar Sesión</span>
+                </>
+              )}
             </button>
           </div>
         </div>
