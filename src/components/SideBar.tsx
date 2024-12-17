@@ -50,18 +50,18 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     role === "admin"
       ? [
           {
-            name: "Dashboard",
-            href: "/admin/dashboard",
+            name: "Gestionar Vehículos",
+            href: "/pages/admin",
             icon: <LayoutDashboard size={20} />,
           },
           {
             name: "Gestionar Usuarios",
-            href: "/admin/users",
+            href: "/pages/admin/users",
             icon: <Users size={20} />,
           },
           {
             name: "Reportes",
-            href: "/admin/reports",
+            href: "/pages/admin/reports",
             icon: <FileText size={20} />,
           },
           {
