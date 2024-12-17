@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     ]
     : [
       { name: "Inicio", href: "/pages/customer", icon: <Home size={20} /> },
-      { name: "Mis Reservas", href: "/customer/reservations", icon: <Calendar size={20} /> },
+      { name: "Mis Reservas", href: "/pages/customer/reservations", icon: <Calendar size={20} /> },
       { name: "Perfil", href: "/customer/profile", icon: <UserCircle size={20} /> },
       { name: "Ayuda", href: "/customer/help", icon: <HelpCircle size={20} /> },
     ];
