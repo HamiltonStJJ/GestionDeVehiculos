@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import TarifaModal  from "./tarifaCRUD";
 import {useRouter} from "next/navigation";
+import Sidebar from "@/components/SideBar";
 
 interface Tarifa {
   _id: string;
@@ -412,9 +413,14 @@ const VehiclePage = () => {
   };
 
   return (
-    <div className="flex">  
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Gestión de Vehículos</h1>
+    <div className="flex h-screen bg-gray-100">
+    {/* Sidebar */}
+    <Sidebar role="admin" />
+    
+    {/* Contenido Principal */}
+    <main className="flex-1 overflow-auto">
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-6">Gestión de Vehículos</h1>
 
       {/* Formulario */}
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
@@ -555,13 +561,14 @@ const VehiclePage = () => {
         </form>
       </Modal>
 
-      <button
-      id="addVehicle"
-      onClick={()=> setIsModalOpen(true)}
-      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
-      >
-        Agregar Vehículo
-      </button>
+       {/* Botón de Agregar Vehículo */}
+       <button
+          id="addVehicle"
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
+        >
+          Agregar Vehículo
+        </button>
       {/* Tabla de Vehículos */}
       <div className="overflow-x-auto bg-white shadow-md rounded">
         <table className="min-w-full divide-y divide-gray-200">
@@ -646,7 +653,8 @@ const VehiclePage = () => {
         </table>
       </div>
     </div>
-    </div>
+    </main>
+  </div>
   );
 };
 

@@ -51,7 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
         <div className="flex flex-col h-full bg-gray-800 text-white shadow-xl">
           {/* Header with animation */}
           <div className="p-6 bg-gray-900 text-center border-b border-gray-700">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold bg-gradient-to-r text-blue-400 bg-clip-text ">
               {role === "admin" ? "Admin Panel" : "Customer Panel"}
             </h2>
           </div>
