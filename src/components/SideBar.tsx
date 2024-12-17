@@ -13,11 +13,14 @@ import {
   UserCircle,
   HelpCircle,
   ChevronRight,
+  Car,
+  ClipboardCheck,
+  Wrench,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface SidebarProps {
-  role: "admin" | "customer";
+  role: "admin" | "customer" | "employee";
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ role }) => {
@@ -46,9 +49,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     }
   };
 
-  const menuItems =
-    role === "admin"
-      ? [
+  const getMenuItems = () => {
+    switch (role) {
+      case "admin":
+        return [
           {
             name: "Gestionar Vehículos",
             href: "/pages/admin",
@@ -69,9 +73,37 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/admin/settings",
             icon: <Settings size={20} />,
           },
-        ]
-      : [
-          { name: "Inicio", href: "/pages/customer", icon: <Home size={20} /> },
+        ];
+      case "employee":
+        return [
+          {
+            name: "Gestión de Reservas",
+            href: "/pages/employee/reservations",
+            icon: <Calendar size={20} />,
+          },
+          {
+            name: "Estado de Vehículos",
+            href: "/pages/employee/vehicles",
+            icon: <Car size={20} />,
+          },
+          {
+            name: "Registrar Mantenimiento",
+            href: "/pages/employee/maintenance",
+            icon: <Wrench size={20} />,
+          },
+          {
+            name: "Inspecciones",
+            href: "/pages/employee/inspections",
+            icon: <ClipboardCheck size={20} />,
+          },
+        ];
+      case "customer":
+        return [
+          { 
+            name: "Inicio", 
+            href: "/pages/customer", 
+            icon: <Home size={20} /> 
+          },
           {
             name: "Mis Reservas",
             href: "/pages/customer/reservations",
@@ -88,6 +120,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             icon: <HelpCircle size={20} />,
           },
         ];
+    }
+  };
+
+  const menuItems = getMenuItems();
 
   return (
     <>
@@ -120,15 +156,19 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
         <div className="flex flex-col h-full bg-gray-800 text-white shadow-xl">
           {/* Header with animation */}
           <div className="p-6 bg-gray-900 text-center border-b border-gray-700">
-            <h2 className="text-2xl font-bold bg-gradient-to-r text-white bg-clip-text ">
-              {role === "admin" ? "Admin Panel" : "Customer Panel"}
+            <h2 className="text-2xl font-bold bg-gradient-to-r text-white bg-clip-text">
+              {role === "admin" 
+                ? "Admin Panel" 
+                : role === "employee" 
+                ? "Employee Panel" 
+                : "Customer Panel"}
             </h2>
           </div>
 
           {/* Navigation Menu */}
           <nav className="flex-1 px-4 py-2">
             <ul className="space-y-2">
-              {menuItems.map((item, index) => (
+              {menuItems?.map((item, index) => (
                 <li
                   key={index}
                   onMouseEnter={() => setIsHovered(index)}
