@@ -128,33 +128,27 @@ const Customer: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-    <Sidebar role="customer" />
+    <>
+    {/* Botón de Cerrar Sesión */}
+    <div className="flex justify-end mb-4">
+      <button
+        id="logout-btn"
+        onClick={logout}
+        className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black-600 transition duration-200"
+      >
+        Cerrar Sesión
+      </button>
+    </div>
 
-       
-    {/* Contenido Principal con scroll independiente */}
-    <main className="flex-1 overflow-auto">
-      <div className="p-6">
-        {/* Botón de Cerrar Sesión */}
-        <div className="flex justify-end mb-4">
-          <button
-            id="logout-btn"
-            onClick={logout}
-            className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black-600 transition duration-200"
-          >
-            Cerrar Sesión
-          </button>
-        </div>
+    <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
+      Catálogo de Vehículos
+    </h1>
+    <p className="text-center text-gray-700 mb-8">
+      Explora los vehículos disponibles para alquilar
+    </p>
 
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Catálogo de Vehículos
-        </h1>
-        <p className="text-center text-gray-700 mb-8">
-          Explora los vehículos disponibles para alquilar
-        </p>
-
-        {/* Filtros */}
-        <div className="filters flex flex-wrap justify-center gap-4 mb-8">
+    {/* Filtros */}
+    <div className="filters flex flex-wrap justify-center gap-4 mb-8">
           <label htmlFor="filterBrand" className="sr-only">
             Marca
           </label>
@@ -306,9 +300,7 @@ const Customer: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
-      </main>
-    </div>
+      </>
   );
 };
 
