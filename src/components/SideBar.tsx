@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
         credentials: "include",
       });
       if (response.ok) {
-        Router.push("/");
+        Router.push("/pages/auth/Login");
       } else {
         console.error("Error al cerrar sesión");
       }
