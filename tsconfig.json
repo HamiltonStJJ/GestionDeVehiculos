@@ -35,7 +35,7 @@
     "jest.setup.ts",
     "next-env.d.ts",
     ".next/types/**/*.ts"
-  ],
+, "src/app/layouts/AdminLayout.tsx"  ],
   "exclude": [
     "node_modules"
   ]

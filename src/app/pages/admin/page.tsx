@@ -413,15 +413,8 @@ const VehiclePage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-    {/* Sidebar */}
-    <Sidebar role="admin" />
-    
-    {/* Contenido Principal */}
-    <main className="flex-1 overflow-auto">
-      <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-6">Gestión de Vehículos</h1>
-
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6">Gestión de Vehículos</h1>
       {/* Formulario */}
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <h2 className="text-xl font-semibold mb-4">
@@ -653,8 +646,6 @@ const VehiclePage = () => {
         </table>
       </div>
     </div>
-    </main>
-  </div>
   );
 };
 
