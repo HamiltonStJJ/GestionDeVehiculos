@@ -79,7 +79,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
           },
           {
             name: "Perfil",
-            href: "/customer/profile",
+            href: "/pages/customer/profile",
             icon: <UserCircle size={20} />,
           },
           {
