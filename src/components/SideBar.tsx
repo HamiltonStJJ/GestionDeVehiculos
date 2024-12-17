@@ -1,14 +1,35 @@
 import React, { useState } from 'react';
 import Link from "next/link";
 import { LogOut, Menu, X, LayoutDashboard, Users, FileText, Settings, Home, Calendar, UserCircle, HelpCircle, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface SidebarProps {
   role: "admin" | "customer";
 }
 
+
 const Sidebar: React.FC<SidebarProps> = ({ role }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState<number | null>(null);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const Router = useRouter();
+
+  const logout = async () => {
+    try {
+      const response = await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include", // Para incluir las cookies en la solicitud
+      });
+      if (response.ok) {
+        Router.push("/"); // Redirige a la página de inicio después de cerrar sesión
+      } else {
+        console.error("Error al cerrar sesión");
+      }
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
 
   const menuItems = role === "admin"
     ? [
@@ -89,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
 
           {/* Footer with Logout Button */}
           <div className="p-4 border-t border-gray-700">
-            <button className="w-full bg-gray-700 text-white py-3 px-4 rounded-lg hover:bg-[#134B70] transition-all duration-200 flex items-center justify-center space-x-2 group">
+            <button className="w-full bg-gray-700 text-white py-3 px-4 rounded-lg hover:bg-[#134B70] transition-all duration-200 flex items-center justify-center space-x-2 group" onClick={logout}>
               <LogOut size={20} className="group-hover:rotate-12 transition-transform duration-200" />
               <span>Cerrar Sesión</span>
             </button>
