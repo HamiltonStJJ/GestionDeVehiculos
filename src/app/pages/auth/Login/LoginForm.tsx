@@ -9,14 +9,27 @@ import AuthButton from "@/components/AuthButton";
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null); // Error específico del email
+  const [generalError, setGeneralError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
-    setError(null);
+    setGeneralError(null);
+
+    // Validar el correo antes de enviar la solicitud
+    if (!validateEmail(email)) {
+      setEmailError("Por favor, ingresa un correo válido.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const result = await login(email, password);
@@ -34,7 +47,7 @@ export default function LoginForm() {
         router.push("/pages/customer");
       }
     } catch (err) {
-      setError("Credenciales incorrectas");
+      setGeneralError("Credenciales incorrectas");
     } finally {
       setIsLoading(false);
     }
@@ -47,9 +60,19 @@ export default function LoginForm() {
         id="email-input"
         type="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+          setEmail(value);
+          if (!validateEmail(value)) {
+            setEmailError("Por favor, ingresa un correo válido.");
+          } else {
+            setEmailError(null); // Limpiar error si el correo es válido
+          }
+        }}
         placeholder="tucorreo@example.com"
       />
+      {emailError && <p className="text-red-500 text-sm">{emailError}</p>} {/* Error específico del email */}
+      
       <InputField
         label="Contraseña"
         id="password"
@@ -58,7 +81,8 @@ export default function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         placeholder="••••••••"
       />
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {generalError && <p className="text-red-500 text-sm">{generalError}</p>} {/* Error general */}
+      
       <AuthButton
         id="login-btn"
         text="Ingresar"
