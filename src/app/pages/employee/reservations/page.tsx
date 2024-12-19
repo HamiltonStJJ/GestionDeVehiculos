@@ -1,4 +1,5 @@
 "use client";
+import { ConfirmationModal, DevolutionModal } from './RentalsModal';
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { toast } from "react-toastify";
@@ -277,77 +278,19 @@ const ReservationsPage = () => {
           </div>
         </div>
       )}
-      {/* Modal de Confirmación de Autorización */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Confirmar Autorización</h2>
-            <p className="mb-4">
-              ¿Está seguro que desea autorizar esta reservación?
-            </p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmAutorizar}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmAutorizar}
+      />
 
-      {/* Modal de Detalles de Devolución */}
-      {devolucionDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
-            <h2 className="text-xl font-bold mb-4">
-              Detalles de la Devolución
-            </h2>
-            <div className="space-y-2">
-              <p>
-                <strong>Total Original:</strong> $
-                {devolucionDetails.rental.total -
-                  devolucionDetails.penalizacionTotal}
-              </p>
-              <p>
-                <strong>Penalización Total:</strong> $
-                {devolucionDetails.penalizacionTotal}
-              </p>
-              <p>
-                <strong>Total Final:</strong> ${devolucionDetails.rental.total}
-              </p>
-              <div className="mt-4">
-                <h3 className="font-bold">Detalle de Penalizaciones:</h3>
-                {devolucionDetails.rental.piezasRevisadas.map((pieza: any) => (
-                  <div key={pieza._id} className="ml-4">
-                    <p>
-                      {pieza.pieza}: {pieza.estado} - ${pieza.penalizacion}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => {
-                  setDevolucionDetails(null);
-                  setIsDevolucionModalOpen(false);
-                }}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DevolutionModal
+        details={devolucionDetails}
+        onClose={() => {
+          setDevolucionDetails(null);
+          setIsDevolucionModalOpen(false);
+        }}
+      />
     </div>
   );
 };
