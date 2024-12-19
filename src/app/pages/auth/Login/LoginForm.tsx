@@ -22,7 +22,9 @@ export default function LoginForm() {
       const result = await login(email, password);
       console.log(result.status);
       if (result.status === "TEMPORARY_PASSWORD") {
-        router.push("/pages/auth/change-password?userId=${result.userData._id}");
+        router.push(
+          `/pages/auth/change-password?userId=${result.userData._id}`
+        );
       } else {
         localStorage.setItem("userData", JSON.stringify(result.userData));
         if (result.userData.rol === "admin") {

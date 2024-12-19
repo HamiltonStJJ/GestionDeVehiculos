@@ -101,7 +101,6 @@ export default function RegisterForm() {
         router.push(`pages/auth/change-password?userId=${result.userData._id}`);
       } else {
         localStorage.setItem("userData", JSON.stringify(result.userData));
-      }
       if (result.userData.rol === "admin") {
         router.push("/pages/admin");
       } else if (result.userData.rol === "empleado") {
@@ -109,6 +108,8 @@ export default function RegisterForm() {
       } else {
         router.push("/pages/customer");
       }
+      }
+      
     } catch (err) {
       setError("Credenciales incorrectas");
     } finally {
