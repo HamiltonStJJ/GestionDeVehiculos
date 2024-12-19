@@ -93,8 +93,8 @@ const Customer: React.FC = () => {
         toast.success("Reserva realizada con éxito."); 
         closeModal();
       } else {
-        toast.error("Error al realizar la reserva.");
-        closeModal();
+        toast.error("Seleccione una fecha diferente.");
+        setShowConfirmModal(false);
       }
     } catch (error) {
       console.error("Error al realizar la reserva:", error);
