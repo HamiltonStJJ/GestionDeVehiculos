@@ -305,7 +305,7 @@ const Customer: React.FC = () => {
             {/* Botón para cerrar el modal */}
             <button
               onClick={closeModal}
-              className="absolute top-2 right-2 text-2xl font-bold text-gray-600 hover:text-red-600"
+              className="absolute top-2 right-6 text-2xl font-bold text-gray-600 hover:text-red-600"
             >
               &times;
             </button>
@@ -331,7 +331,10 @@ const Customer: React.FC = () => {
                 <strong>Modelo:</strong> {selectedVehicle.modelo}
               </p>
               <p className="text-gray-700">
-                <strong>Modelo:</strong> {selectedVehicle.color}
+                <strong>Año:</strong> {selectedVehicle.anio}
+              </p>
+              <p className="text-gray-700">
+                <strong>Color:</strong> {selectedVehicle.color}
               </p>
               <p className="text-gray-700">
                 <strong>Precio por día:</strong> $
