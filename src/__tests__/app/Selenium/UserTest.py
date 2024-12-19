@@ -18,7 +18,7 @@ password_input.send_keys("karen123")
 login_button.click()
 time.sleep(2);  
 
-# Reservar un auto
+# RESERVAR AUTO
 reservar_btn = driver.find_element(By.ID, "reservar-btn")
 reservar_btn.click()
 time.sleep(2);
@@ -26,7 +26,7 @@ close_window = driver.find_element(By.ID, "close")
 close_window.click()
 time.sleep(3);
 
-#Probar filtros
+#PROBAR FILTROS
 brandcmbx = driver.find_element(By.ID, "filterBrand")
 select = Select(brandcmbx)
 todas_las_opciones = select.options
@@ -65,8 +65,5 @@ time.sleep(2)
 log_out = driver.find_element(By.ID, "logout-btn")
 log_out.click()
 time.sleep(2)
-
-
-
 driver.quit()
 

@@ -40,7 +40,7 @@ describe('RegisterPage & RegisterForm Integration', () => {
       expect(global.alert).toHaveBeenCalledWith("Registro completado con éxito.");
     });
   });
-
+  
   it('shows error message when registration fails', async () => {
     (register as jest.Mock).mockRejectedValue(new Error('Error en el registro'));
     render(<RegisterPage />);
