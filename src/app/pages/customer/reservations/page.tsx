@@ -1,8 +1,3 @@
-
-
 export default function Reservations() {
-    return (
-        <div>Reservaciones</div>
-    );
+  return <div>Reservaciones</div>;
 }
-
