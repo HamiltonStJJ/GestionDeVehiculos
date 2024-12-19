@@ -6,6 +6,7 @@ import { Rental } from "./Rental";
 
 export default function Reservations() {
   const [rentals, setRentals] = useState<Rental[]>([]);
+  const [showInProgress, setShowInProgress] = useState(false);
 
   useEffect(() => {
     const fetchRentals = async () => {
@@ -35,12 +36,20 @@ export default function Reservations() {
     fetchRentals();
   }, []);
 
+  const filteredRentals = showInProgress ? rentals.filter((rental) => rental.estado === "En Curso") : rentals;
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Reservaciones</h1>
+      <div className="flex items-center mb-4">
+        <label className="label cursor-pointer">
+          <span className="label-text mr-2">En curso</span>
+          <input type="checkbox" className="toggle toggle-primary" checked={showInProgress} onChange={() => setShowInProgress(!showInProgress)} />
+        </label>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {rentals.length > 0 ? (
-          rentals.map((rental) => (
+        {filteredRentals.length > 0 ? (
+          filteredRentals.map((rental) => (
             <div key={rental._id} className="card bg-base-100 shadow-xl">
               <figure>
                 <img src={rental.auto.imagen} alt={rental.auto.nombre} width={500} height={300} />
