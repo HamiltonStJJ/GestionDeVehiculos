@@ -23,7 +23,10 @@ export default function LoginForm() {
 
       if (result.status === "TEMPORARY_PASSWORD") {
         router.push(`pages/auth/change-password?userId=${result.userData._id}`);
-      } else if (result.userData.rol === "admin") {
+      } else {
+        localStorage.setItem("userData", JSON.stringify(result.userData));
+      }
+      if (result.userData.rol === "admin") {
         router.push("/pages/admin");
       } else if (result.userData.rol === "empleado") {
         router.push("/pages/employee");
