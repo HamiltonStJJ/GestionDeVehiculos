@@ -54,8 +54,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     switch (role) {
       case "admin":
         return [
-          {
-            name: "Gestionar Vehículos",
+          { name: "Gestionar Vehículos",
             href: "/pages/admin",
             icon: <LayoutDashboard size={20} />,
           },
@@ -78,14 +77,14 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
       case "employee":
         return [
           {
+            name: "Gestión Alquileres",
+            href: "/pages/employee",
+            icon: <Car size={20} />,
+          },
+          {
             name: "Gestión de Reservas",
             href: "/pages/employee/reservations",
             icon: <Calendar size={20} />,
-          },
-          {
-            name: "Estado de Vehículos",
-            href: "/pages/employee/vehicles",
-            icon: <Car size={20} />,
           },
           {
             name: "Registrar Mantenimiento",
