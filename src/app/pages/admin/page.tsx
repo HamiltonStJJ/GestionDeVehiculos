@@ -270,20 +270,27 @@ const VehiclePage = () => {
   };
 
   // Manejadores de eventos
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
+const handleChange = (
+  e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+
+  setFormData((prev) => {
+    let parsedValue = value === "" ? 0 : Number(value);
+
+    // Evitar valores negativos para campos específicos
+    if (["anio", "kilometraje", "numeroAsientos"].includes(name) && parsedValue < 0) {
+      parsedValue = 0; // Fuerza a 0 si el valor es negativo
+    }
+
+    return {
       ...prev,
       [name]: ["anio", "kilometraje", "numeroAsientos"].includes(name)
-        ? value === ""
-          ? 0
-          : Number(value) // Permite que "0" sea válido
+        ? parsedValue // Asegura que solo se usen valores numéricos no negativos
         : value, // Mantiene otros valores textuales
-    }));
-  };
-
+    };
+  });
+};
   
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

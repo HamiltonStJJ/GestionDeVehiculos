@@ -177,16 +177,18 @@ export default function EmployeeRentalPage() {
       });
 
       if (response.ok) {
-        toast.success("Alquiler creado exitosamente"); 
+        toast.success("Alquiler creado exitosamente");
         // Resetear formulario
         setSelectedVehicle(null);
         setSelectedCustomer(null);
         setFechaInicio("");
         setFechaFin("");
         setShowConfirmModal(false);
+      } else {
+        toast.error("El auto no esta disponible en las fechas seleccionadas");
       }
     } catch (error) {
-        toast.error("Error al crear el alquiler");
+      toast.error("Error al crear el alquiler");
     }
   };
 
@@ -307,7 +309,15 @@ export default function EmployeeRentalPage() {
                 type="date"
                 className="p-2 border rounded w-full"
                 value={fechaInicio}
-                onChange={(e) => setFechaInicio(e.target.value)}
+                onChange={(e) => {
+                  setFechaInicio(e.target.value);
+                  if (
+                    fechaFin &&
+                    new Date(e.target.value) > new Date(fechaFin)
+                  ) {
+                    setFechaFin(""); // Resetea la fecha de fin si ya no es válida
+                  }
+                }}
                 min={new Date().toISOString().split("T")[0]}
               />
             </div>
@@ -317,8 +327,18 @@ export default function EmployeeRentalPage() {
                 type="date"
                 className="p-2 border rounded w-full"
                 value={fechaFin}
-                onChange={(e) => setFechaFin(e.target.value)}
+                onChange={(e) => {
+                  if (new Date(e.target.value) >= new Date(fechaInicio)) {
+                    setFechaFin(e.target.value);
+                  } else {
+                    alert(
+                      "La fecha de fin no puede ser anterior a la fecha de inicio."
+                    );
+                    setFechaFin(""); // Resetea la fecha de fin si es inválida
+                  }
+                }}
                 min={fechaInicio}
+                disabled={!fechaInicio} // Desactiva el campo si no hay fecha de inicio
               />
             </div>
           </div>
@@ -327,7 +347,15 @@ export default function EmployeeRentalPage() {
             <div className="mt-4">
               <p className="text-xl font-bold">Total: ${calculateTotal()}</p>
               <button
-                onClick={() => setShowConfirmModal(true)}
+                onClick={() => {
+                  if (new Date(fechaFin) >= new Date(fechaInicio)) {
+                    setShowConfirmModal(true);
+                  } else {
+                    alert(
+                      "Verifica que las fechas seleccionadas sean válidas."
+                    );
+                  }
+                }}
                 className="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
               >
                 Crear Alquiler
@@ -336,7 +364,6 @@ export default function EmployeeRentalPage() {
           )}
         </div>
       )}
-
       {/* Modal de Nuevo Cliente */}
       {showCustomerModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
