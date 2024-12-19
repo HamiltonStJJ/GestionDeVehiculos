@@ -20,18 +20,18 @@ export default function LoginForm() {
 
     try {
       const result = await login(email, password);
-
+      console.log(result.status);
       if (result.status === "TEMPORARY_PASSWORD") {
-        router.push(`pages/auth/change-password?userId=${result.userData._id}`);
+        router.push("/pages/auth/change-password?userId=${result.userData._id}");
       } else {
         localStorage.setItem("userData", JSON.stringify(result.userData));
-      }
-      if (result.userData.rol === "admin") {
-        router.push("/pages/admin");
-      } else if (result.userData.rol === "empleado") {
-        router.push("/pages/employee");
-      } else {
-        router.push("/pages/customer");
+        if (result.userData.rol === "admin") {
+          router.push("/pages/admin");
+        } else if (result.userData.rol === "empleado") {
+          router.push("/pages/employee");
+        } else {
+          router.push("/pages/customer");
+        }
       }
     } catch (err) {
       setError("Credenciales incorrectas");
@@ -42,29 +42,10 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <InputField
-        label="Correo electrónico"
-        id="email-input"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="tucorreo@example.com"
-      />
-      <InputField
-        label="Contraseña"
-        id="password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="••••••••"
-      />
+      <InputField label="Correo electrónico" id="email-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
+      <InputField label="Contraseña" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <AuthButton
-        id="login-btn"
-        text="Ingresar"
-        onClick={() => handleSubmit}
-        isLoading={isLoading}
-      />
+      <AuthButton id="login-btn" text="Ingresar" onClick={() => handleSubmit} isLoading={isLoading} />
     </form>
   );
 }
