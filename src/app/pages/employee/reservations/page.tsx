@@ -1,8 +1,9 @@
 "use client";
-import { ConfirmationModal, DevolutionModal } from './RentalsModal';
+import { ConfirmationModal, DevolutionModal } from "./RentalsModal";
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { toast } from "react-toastify";
+import RentalsTable from "./RentalsTable";
 
 const ReservationsPage = () => {
   interface Rental {
@@ -140,102 +141,16 @@ const ReservationsPage = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Gestión de Reservaciones</h1>
 
-      {/* Barra de búsqueda */}
-      <div className="mb-6 relative">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Buscar por email del cliente o placa del vehículo..."
-            className="w-full p-3 pl-10 border rounded-lg"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <Search className="absolute left-3 top-3 text-gray-400" size={20} />
-        </div>
-      </div>
-
-      {/* Tabla de reservaciones */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-lg overflow-hidden">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Cliente
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Vehículo
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Fechas
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredRentals.map((rental) => (
-              <tr key={rental._id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {rental.cliente?.email || "N/A"}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {rental.auto?.placa || "N/A"}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {new Date(rental.fechaInicio).toLocaleDateString()} -
-                    {new Date(rental.fechaFin).toLocaleDateString()}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${
-                      rental.estado.toLowerCase() === "pendiente"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : rental.estado.toLowerCase() === "en curso"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {rental.estado}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  {rental.estado === "pendiente" && (
-                    <button
-                      onClick={() => handleAutorizar(rental._id)}
-                      className="text-green-600 hover:text-green-900 mr-4"
-                    >
-                      Autorizar
-                    </button>
-                  )}
-                  {rental.estado === "en curso" && (
-                    <button
-                      onClick={() => {
-                        setSelectedRental(rental);
-                        setIsDevolucionModalOpen(true);
-                      }}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      Devolución
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
+      <RentalsTable
+        rentals={rentals}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onAuthorize={handleAutorizar}
+        onDevolucion={(rental) => {
+          setSelectedRental(rental);
+          setIsDevolucionModalOpen(true);
+        }}
+      />
       {/* Modal de Devolución */}
       {isDevolucionModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">

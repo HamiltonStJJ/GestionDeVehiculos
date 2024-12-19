@@ -1,5 +1,5 @@
-import React from 'react';
-import { Search, RefreshCw, Calendar, Car, User } from 'lucide-react';
+import React from "react";
+import { Search, RefreshCw, Calendar, Car, User } from "lucide-react";
 
 // Define interface for the client details
 interface Client {
@@ -40,7 +40,9 @@ const RentalsTable: React.FC<RentalsTableProps> = ({
     (rental) =>
       rental.cliente?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rental.auto?.placa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.cliente?.cedula?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rental.cliente?.cedula
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       rental.cliente?.apellido?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -48,29 +50,28 @@ const RentalsTable: React.FC<RentalsTableProps> = ({
     <div className="space-y-6">
       {/* Enhanced Search Bar */}
       <div className="relative">
-        <div className="relative flex items-center max-w-md mx-auto">
+        <div className="relative flex items-center w-full">
           <input
             type="text"
             placeholder="Buscar por email, placa, cédula o apellido..."
             className="w-full p-4 pl-12 pr-10 border-2 border-gray-200 rounded-xl 
-                     focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
-                     transition-all duration-200 outline-none"
+                 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                 transition-all duration-200 outline-none"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
           <Search className="absolute left-4 text-gray-400" size={20} />
           {searchTerm && (
             <button
-              onClick={() => onSearchChange('')}
+              onClick={() => onSearchChange("")}
               className="absolute right-4 p-1 hover:bg-gray-100 rounded-full
-                       transition-colors duration-200"
+                 transition-colors duration-200"
             >
               <RefreshCw size={16} className="text-gray-400" />
             </button>
           )}
         </div>
       </div>
-
       {/* Enhanced Table */}
       <div className="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-100">
         <table className="min-w-full divide-y divide-gray-200">
@@ -111,27 +112,31 @@ const RentalsTable: React.FC<RentalsTableProps> = ({
                 <td className="px-6 py-4">
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-gray-900">
-                      {rental.cliente?.email || 'N/A'}
+                      {rental.cliente?.email || "N/A"}
                     </span>
                     <span className="text-sm text-gray-500">
-                      Cédula: {rental.cliente?.cedula || 'N/A'}
+                      Cédula: {rental.cliente?.cedula || "N/A"}
                     </span>
                     <span className="text-sm text-gray-500">
-                      Apellido: {rental.cliente?.apellido || 'N/A'}
+                      Apellido: {rental.cliente?.apellido || "N/A"}
                     </span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm font-medium text-gray-900">
-                    {rental.auto?.placa || 'N/A'}
+                    {rental.auto?.placa || "N/A"}
                   </div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-col text-sm text-gray-900">
                     <span className="font-medium">Inicio:</span>
-                    <span>{new Date(rental.fechaInicio).toLocaleDateString()}</span>
+                    <span>
+                      {new Date(rental.fechaInicio).toLocaleDateString()}
+                    </span>
                     <span className="font-medium mt-1">Fin:</span>
-                    <span>{new Date(rental.fechaFin).toLocaleDateString()}</span>
+                    <span>
+                      {new Date(rental.fechaFin).toLocaleDateString()}
+                    </span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -176,7 +181,7 @@ const RentalsTable: React.FC<RentalsTableProps> = ({
             ))}
           </tbody>
         </table>
-        
+
         {/* Empty State */}
         {filteredRentals.length === 0 && (
           <div className="text-center py-12">
