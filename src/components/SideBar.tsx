@@ -38,6 +38,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
         credentials: "include",
       });
       if (response.ok) {
+        localStorage.removeItem("userData"); 
         Router.push("/pages/auth/Login");
       } else {
         console.error("Error al cerrar sesión");
@@ -99,10 +100,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
         ];
       case "customer":
         return [
-          { 
-            name: "Inicio", 
-            href: "/pages/customer", 
-            icon: <Home size={20} /> 
+          {
+            name: "Inicio",
+            href: "/pages/customer",
+            icon: <Home size={20} />,
           },
           {
             name: "Mis Reservas",
@@ -157,10 +158,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
           {/* Header with animation */}
           <div className="p-6 bg-gray-900 text-center border-b border-gray-700">
             <h2 className="text-2xl font-bold bg-gradient-to-r text-white bg-clip-text">
-              {role === "admin" 
-                ? "Admin Panel" 
-                : role === "employee" 
-                ? "Employee Panel" 
+              {role === "admin"
+                ? "Admin Panel"
+                : role === "employee"
+                ? "Employee Panel"
                 : "Customer Panel"}
             </h2>
           </div>
