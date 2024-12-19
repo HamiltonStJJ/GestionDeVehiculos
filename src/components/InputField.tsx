@@ -5,6 +5,7 @@ export default function InputField({
     onChange,
     placeholder,
     id,
+    
   }: {
     label: string;
     type?: string;
