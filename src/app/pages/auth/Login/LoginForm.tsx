@@ -17,14 +17,16 @@ export default function LoginForm() {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const result = await login(email, password);
-      
-      if (result.status === 'TEMPORARY_PASSWORD') {
+
+      if (result.status === "TEMPORARY_PASSWORD") {
         router.push(`pages/auth/change-password?userId=${result.userData._id}`);
-      } else if (result.userData.rol === 'admin') {
+      } else if (result.userData.rol === "admin") {
         router.push("/pages/admin");
+      } else if (result.userData.rol === "empleado") {
+        router.push("/pages/employee");
       } else {
         router.push("/pages/customer");
       }
@@ -37,29 +39,29 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <InputField 
-        label="Correo electrónico" 
-        id="email-input" 
-        type="email"  
-        value={email} 
-        onChange={(e) => setEmail(e.target.value)} 
-        placeholder="tucorreo@example.com" 
+      <InputField
+        label="Correo electrónico"
+        id="email-input"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="tucorreo@example.com"
       />
-      <InputField 
-        label="Contraseña" 
-        id="password" 
-        type="password" 
-        value={password} 
-        onChange={(e) => setPassword(e.target.value)} 
-        placeholder="••••••••" 
+      <InputField
+        label="Contraseña"
+        id="password"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="••••••••"
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <AuthButton 
-        id="login-btn" 
-        text="Ingresar" 
-        onClick={() => handleSubmit} 
+      <AuthButton
+        id="login-btn"
+        text="Ingresar"
+        onClick={() => handleSubmit}
         isLoading={isLoading}
       />
     </form>
-  );  
+  );
 }
