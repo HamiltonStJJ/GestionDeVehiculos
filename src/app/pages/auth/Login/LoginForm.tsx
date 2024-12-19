@@ -49,6 +49,7 @@ export default function LoginForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="tucorreo@example.com"
+        
       />
       <InputField
         label="Contraseña"
