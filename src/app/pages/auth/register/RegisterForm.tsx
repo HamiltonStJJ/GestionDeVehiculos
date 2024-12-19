@@ -128,7 +128,12 @@ export default function RegisterForm() {
             label="Cédula"
             type="text"
             value={cedula}
-            onChange={(e) => setCedula(e.target.value)}
+            onChange={(e) => {
+              const numericValue = e.target.value
+                .replace(/[^0-9]/g, "")
+                .slice(0, 10);
+              setCedula(numericValue);
+            }}
             placeholder="Cédula"
           />
           <InputField
@@ -136,15 +141,28 @@ export default function RegisterForm() {
             label="Nombre"
             type="text"
             value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
+            onChange={(e) => {
+              const letterValue = e.target.value.replace(
+                /[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g,
+                ""
+              );
+              setNombre(letterValue);
+            }}
             placeholder="Nombre"
           />
+
           <InputField
             id="apellido"
             label="Apellido"
             type="text"
             value={apellido}
-            onChange={(e) => setApellido(e.target.value)}
+            onChange={(e) => {
+              const letterValue = e.target.value.replace(
+                /[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g,
+                ""
+              );
+              setApellido(letterValue);
+            }}
             placeholder="Apellido"
           />
           <InputField
@@ -152,15 +170,30 @@ export default function RegisterForm() {
             label="Dirección"
             type="text"
             value={direccion}
-            onChange={(e) => setDireccion(e.target.value)}
+            onChange={(e) => {
+              const input = e.target.value;
+              const filteredValue = input.replace(
+                /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s,.-]/g,
+                ""
+              );
+
+              setDireccion(filteredValue);
+              setError(null); // Limpiar error si es válido
+            }}
             placeholder="Dirección"
           />
+
           <InputField
             id="telefono"
             label="Teléfono"
             type="text"
             value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
+            onChange={(e) => {
+              const numericValue = e.target.value
+                .replace(/[^0-9]/g, "")
+                .slice(0, 10);
+              setTelefono(numericValue);
+            }}
             placeholder="Teléfono"
           />
           <InputField
@@ -168,9 +201,22 @@ export default function RegisterForm() {
             label="Correo electrónico"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              const input = e.target.value;
+              const emailRegex =
+                /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+              if (!emailRegex.test(input)) {
+                setError("Por favor ingresa un correo electrónico válido.");
+              } else {
+                setError(null); 
+              }
+
+              setEmail(input);
+            }}
             placeholder="tucorreo@example.com"
           />
+
           <InputField
             id="password"
             label="Contraseña"
