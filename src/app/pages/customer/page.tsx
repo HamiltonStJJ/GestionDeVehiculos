@@ -114,7 +114,7 @@ const Customer: React.FC = () => {
       .then((response) => response.json())
       .then((data) => {
         const filteredData = data
-          .filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado")
+          .filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado" && vehicle.estado == "Disponible")
           .map((vehicle: Vehicle) => ({
             ...vehicle,
             precio: vehicle.tarifas[0]?.tarifa || 0, // Toma el precio de la primera tarifa, o 0 si no hay tarifas
@@ -219,7 +219,7 @@ const Customer: React.FC = () => {
           }
           className="p-2 border rounded-lg text-gray-800 bg-white"
         />
-
+{/*
         <select
           id="status-cmbx"
           value={filterAvailability}
@@ -230,7 +230,7 @@ const Customer: React.FC = () => {
           <option value="Disponible">Disponible</option>
           <option value="Alquilado">Alquilado</option>
         </select>
-
+*/}
         <select
           id="year-cmbx"
           value={filterYear}
