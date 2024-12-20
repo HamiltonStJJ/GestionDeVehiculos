@@ -177,7 +177,9 @@ export default function EmployeeRentalPage() {
         setFechaFin("");
         setShowConfirmModal(false);
       } else {
+
         toast.error("Ya se encuentra alquilado dentro de las fechas seleccionadas");
+
       }
     } catch (error) {
       toast.error("Error al crear el alquiler");
@@ -252,25 +254,69 @@ export default function EmployeeRentalPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block mb-2">Fecha de Inicio</label>
-              <input type="date" className="p-2 border rounded w-full" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} min={new Date().toISOString().split("T")[0]} />
+
+              <input
+                type="date"
+                className="p-2 border rounded w-full"
+                value={fechaInicio}
+                onChange={(e) => {
+                  setFechaInicio(e.target.value);
+                  if (
+                    fechaFin &&
+                    new Date(e.target.value) > new Date(fechaFin)
+                  ) {
+                    setFechaFin(""); // Resetea la fecha de fin si ya no es válida
+                  }
+                }}
+                min={new Date().toISOString().split("T")[0]}
+              />
             </div>
             <div>
               <label className="block mb-2">Fecha de Fin</label>
-              <input type="date" className="p-2 border rounded w-full" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} min={fechaInicio} />
+              <input
+                type="date"
+                className="p-2 border rounded w-full"
+                value={fechaFin}
+                onChange={(e) => {
+                  if (new Date(e.target.value) >= new Date(fechaInicio)) {
+                    setFechaFin(e.target.value);
+                  } else {
+                    alert(
+                      "La fecha de fin no puede ser anterior a la fecha de inicio."
+                    );
+                    setFechaFin(""); // Resetea la fecha de fin si es inválida
+                  }
+                }}
+                min={fechaInicio}
+                disabled={!fechaInicio} // Desactiva el campo si no hay fecha de inicio
+              />
+
             </div>
           </div>
 
           {fechaInicio && fechaFin && (
             <div className="mt-4">
               <p className="text-xl font-bold">Total: ${calculateTotal()}</p>
-              <button onClick={() => setShowConfirmModal(true)} className="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">
+
+              <button
+                onClick={() => {
+                  if (new Date(fechaFin) >= new Date(fechaInicio)) {
+                    setShowConfirmModal(true);
+                  } else {
+                    alert(
+                      "Verifica que las fechas seleccionadas sean válidas."
+                    );
+                  }
+                }}
+                className="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+              >
+
                 Crear Alquiler
               </button>
             </div>
           )}
         </div>
       )}
-
       {/* Modal de Nuevo Cliente */}
       {showCustomerModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

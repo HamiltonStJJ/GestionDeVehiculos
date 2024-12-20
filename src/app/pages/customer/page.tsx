@@ -28,7 +28,6 @@ interface Vehicle {
   }[]; // Cambiado para reflejar el formato del array de tarifas
 }
 
-
 const Customer: React.FC = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
@@ -58,8 +57,6 @@ const Customer: React.FC = () => {
     return days > 0 ? days * (selectedVehicle?.tarifas[0]?.tarifa || 0) : 0;
   };
 
-  
-
   const handleReservation = async (
     event: React.FormEvent,
     vehicle: Vehicle
@@ -75,7 +72,7 @@ const Customer: React.FC = () => {
       auto: vehicle._id,
       fechaInicio,
       fechaFin,
-      tarifaAplicada: vehicle.tarifas[0]?._id|| "N/A",
+      tarifaAplicada: vehicle.tarifas[0]?._id || "N/A",
       total: calcularTotal(),
     };
 
@@ -86,11 +83,11 @@ const Customer: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(reservationData),
-        credentials: "include"
+        credentials: "include",
       });
 
       if (response.ok) {
-        toast.success("Reserva realizada con éxito."); 
+        toast.success("Reserva realizada con éxito.");
         closeModal();
       } else {
         toast.error("Seleccione una fecha diferente.");
@@ -114,7 +111,8 @@ const Customer: React.FC = () => {
       .then((response) => response.json())
       .then((data) => {
         const filteredData = data
-          .filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado" && vehicle.estado == "Disponible")
+          .filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado"&& vehicle.estado == "Disponible")
+
           .map((vehicle: Vehicle) => ({
             ...vehicle,
             precio: vehicle.tarifas[0]?.tarifa || 0, // Toma el precio de la primera tarifa, o 0 si no hay tarifas
@@ -219,6 +217,7 @@ const Customer: React.FC = () => {
           }
           className="p-2 border rounded-lg text-gray-800 bg-white"
         />
+
 {/*
         <select
           id="status-cmbx"
@@ -231,6 +230,7 @@ const Customer: React.FC = () => {
           <option value="Alquilado">Alquilado</option>
         </select>
 */}
+
         <select
           id="year-cmbx"
           value={filterYear}
@@ -367,7 +367,18 @@ const Customer: React.FC = () => {
                     type="date"
                     id="fechaInicio"
                     value={fechaInicio}
-                    onChange={(e) => setFechaInicio(e.target.value)}
+                    onChange={(e) => {
+                      const nuevaFechaInicio = e.target.value;
+                      setFechaInicio(nuevaFechaInicio);
+
+                      // Reiniciar fecha de fin si ya no es válida
+                      if (
+                        fechaFin &&
+                        new Date(nuevaFechaInicio) > new Date(fechaFin)
+                      ) {
+                        setFechaFin(""); // Resetea la fecha de fin si la fecha de inicio cambia a una posterior
+                      }
+                    }}
                     min={new Date().toISOString().split("T")[0]} // Establece la fecha mínima como hoy
                     className="w-full p-2 border rounded-lg"
                     required
@@ -385,10 +396,21 @@ const Customer: React.FC = () => {
                     type="date"
                     id="fechaFin"
                     value={fechaFin}
-                    onChange={(e) => setFechaFin(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
+                    onChange={(e) => {
+                      const nuevaFechaFin = e.target.value;
+                      if (new Date(nuevaFechaFin) >= new Date(fechaInicio)) {
+                        setFechaFin(nuevaFechaFin);
+                      } else {
+                        alert(
+                          "La fecha de fin no puede ser anterior a la fecha de inicio."
+                        );
+                        setFechaFin(""); // Resetea la fecha de fin si es inválida
+                      }
+                    }}
+                    min={fechaInicio} // Establece como mínimo la fecha de inicio
                     className="w-full p-2 border rounded-lg"
                     required
+                    disabled={!fechaInicio} // Desactiva el campo si no hay fecha de inicio seleccionada
                   />
                 </div>
 
