@@ -28,8 +28,29 @@ export default function ForgotPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <InputField id="correo" label="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+  <InputField
+    id="correo"
+    label="Correo electrónico"
+    type="email"
+    value={email}
+    onChange={(e) => {
+      const input = e.target.value;
+      setEmail(input);
+      
+      // Validación de formato de correo electrónico
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+      // Verificar si el correo es válido
+      if (!emailRegex.test(input)) {
+        setError("Por favor ingresa un correo electrónico válido.");
+      } else {
+        setError(null); // Limpiar el error si el correo es válido
+      }
+    }}
+    placeholder="tucorreo@example.com"
+  />
+  
+  {error && <p className="text-red-500 text-sm">{error}</p>}
       {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
       <AuthButton id="recuperar-btn" text="Recuperar ahora" isLoading={isLoading} onClick={()=> handleSubmit} />
     </form>

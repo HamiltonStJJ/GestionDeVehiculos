@@ -37,9 +37,7 @@ export default function EmployeeRentalPage() {
 
   // Estados para clientes
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null
-  );
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
 
@@ -69,9 +67,7 @@ export default function EmployeeRentalPage() {
           credentials: "include",
         });
         const data = await response.json();
-        const availableVehicles = data.filter(
-          (v: Vehicle) => v.estado !== "Eliminado" && v.estado !== "Alquilado"
-        );
+        const availableVehicles = data.filter((v: Vehicle) => v.estado !== "Eliminado" && v.estado !== "Alquilado");
         setVehicles(availableVehicles);
         setFilteredVehicles(availableVehicles);
       } catch (error) {
@@ -100,9 +96,7 @@ export default function EmployeeRentalPage() {
         const data = await response.json();
         console.log("Datos recibidos:", data); // Para debugging
 
-        const filteredCustomers = data.filter(
-          (user: any) => user.rol === "customer" || user.rol === "cliente"
-        );
+        const filteredCustomers = data.filter((user: any) => user.rol === "customer" || user.rol === "cliente");
         console.log("Clientes filtrados:", filteredCustomers); // Para debugging
 
         setCustomers(filteredCustomers);
@@ -127,8 +121,7 @@ export default function EmployeeRentalPage() {
     if (!fechaInicio || !fechaFin || !selectedVehicle) return 0;
     const start = new Date(fechaInicio);
     const end = new Date(fechaFin);
-    const days =
-      Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     return days * (selectedVehicle.tarifas[0]?.tarifa || 0);
   };
 
@@ -156,8 +149,7 @@ export default function EmployeeRentalPage() {
 
   // Crear alquiler
   const handleCreateRental = async () => {
-    if (!selectedVehicle || !selectedCustomer || !fechaInicio || !fechaFin)
-      return;
+    if (!selectedVehicle || !selectedCustomer || !fechaInicio || !fechaFin) return;
 
     const rentalData = {
       cliente: selectedCustomer._id,
@@ -185,7 +177,9 @@ export default function EmployeeRentalPage() {
         setFechaFin("");
         setShowConfirmModal(false);
       } else {
-        toast.error("El auto no esta disponible en las fechas seleccionadas");
+
+        toast.error("Ya se encuentra alquilado dentro de las fechas seleccionadas");
+
       }
     } catch (error) {
       toast.error("Error al crear el alquiler");
@@ -200,11 +194,7 @@ export default function EmployeeRentalPage() {
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">1. Seleccionar Vehículo</h2>
         <div className="mb-4">
-          <select
-            className="p-2 border rounded"
-            value={filterBrand}
-            onChange={(e) => filterVehicles(e.target.value)}
-          >
+          <select className="p-2 border rounded" value={filterBrand} onChange={(e) => filterVehicles(e.target.value)}>
             <option value="Todas">Todas las marcas</option>
             {Array.from(new Set(vehicles.map((v) => v.marca))).map((marca) => (
               <option key={marca} value={marca}>
@@ -216,27 +206,13 @@ export default function EmployeeRentalPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {filteredVehicles.map((vehicle) => (
-            <div
-              key={vehicle._id}
-              className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                selectedVehicle?._id === vehicle._id
-                  ? "border-blue-500 bg-blue-50"
-                  : "hover:border-gray-400"
-              }`}
-              onClick={() => setSelectedVehicle(vehicle)}
-            >
-              <img
-                src={vehicle.imagen}
-                alt={vehicle.nombre}
-                className="w-full h-48 object-cover rounded mb-2"
-              />
+            <div key={vehicle._id} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedVehicle?._id === vehicle._id ? "border-blue-500 bg-blue-50" : "hover:border-gray-400"}`} onClick={() => setSelectedVehicle(vehicle)}>
+              <img src={vehicle.imagen} alt={vehicle.nombre} className="w-full h-48 object-cover rounded mb-2" />
               <h3 className="font-semibold">{vehicle.nombre}</h3>
               <p className="text-gray-600">
                 {vehicle.marca} - {vehicle.modelo}
               </p>
-              <p className="text-green-600 font-semibold">
-                ${vehicle.tarifas[0]?.tarifa}/día
-              </p>
+              <p className="text-green-600 font-semibold">${vehicle.tarifas[0]?.tarifa}/día</p>
             </div>
           ))}
         </div>
@@ -247,22 +223,10 @@ export default function EmployeeRentalPage() {
         <h2 className="text-2xl font-semibold mb-4">2. Seleccionar Cliente</h2>
         <div className="flex gap-2 mb-4">
           <div className="relative flex-1">
-            <Search
-              className="absolute left-3 top-2.5 text-gray-400"
-              size={20}
-            />
-            <input
-              type="text"
-              placeholder="Buscar cliente por cédula o nombre..."
-              className="pl-10 p-2 border rounded w-full"
-              value={customerSearch}
-              onChange={(e) => setCustomerSearch(e.target.value)}
-            />
+            <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
+            <input type="text" placeholder="Buscar cliente por cédula o nombre..." className="pl-10 p-2 border rounded w-full" value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} />
           </div>
-          <button
-            onClick={() => setShowCustomerModal(true)}
-            className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-green-600"
-          >
+          <button onClick={() => setShowCustomerModal(true)} className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-green-600">
             <UserPlus size={20} />
             Nuevo Cliente
           </button>
@@ -270,28 +234,13 @@ export default function EmployeeRentalPage() {
 
         <div className="max-h-60 overflow-y-auto border rounded">
           {customers
-            .filter(
-              (c) =>
-                c.cedula.includes(customerSearch) ||
-                c.nombre.toLowerCase().includes(customerSearch.toLowerCase()) ||
-                c.apellido.toLowerCase().includes(customerSearch.toLowerCase())
-            )
+            .filter((c) => c.cedula.includes(customerSearch) || c.nombre.toLowerCase().includes(customerSearch.toLowerCase()) || c.apellido.toLowerCase().includes(customerSearch.toLowerCase()))
             .map((customer) => (
-              <div
-                key={customer._id}
-                className={`p-3 border-b cursor-pointer ${
-                  selectedCustomer?._id === customer._id
-                    ? "bg-blue-50"
-                    : "hover:bg-gray-50"
-                }`}
-                onClick={() => setSelectedCustomer(customer)}
-              >
+              <div key={customer._id} className={`p-3 border-b cursor-pointer ${selectedCustomer?._id === customer._id ? "bg-blue-50" : "hover:bg-gray-50"}`} onClick={() => setSelectedCustomer(customer)}>
                 <p className="font-semibold">
                   {customer.nombre} {customer.apellido}
                 </p>
-                <p className="text-sm text-gray-600">
-                  Cédula: {customer.cedula}
-                </p>
+                <p className="text-sm text-gray-600">Cédula: {customer.cedula}</p>
                 <p className="text-sm text-gray-600">{customer.email}</p>
               </div>
             ))}
@@ -305,6 +254,7 @@ export default function EmployeeRentalPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block mb-2">Fecha de Inicio</label>
+
               <input
                 type="date"
                 className="p-2 border rounded w-full"
@@ -340,12 +290,14 @@ export default function EmployeeRentalPage() {
                 min={fechaInicio}
                 disabled={!fechaInicio} // Desactiva el campo si no hay fecha de inicio
               />
+
             </div>
           </div>
 
           {fechaInicio && fechaFin && (
             <div className="mt-4">
               <p className="text-xl font-bold">Total: ${calculateTotal()}</p>
+
               <button
                 onClick={() => {
                   if (new Date(fechaFin) >= new Date(fechaInicio)) {
@@ -358,6 +310,7 @@ export default function EmployeeRentalPage() {
                 }}
                 className="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
               >
+
                 Crear Alquiler
               </button>
             </div>
@@ -379,27 +332,11 @@ export default function EmployeeRentalPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block mb-1">Cédula</label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border rounded"
-                    value={newCustomer.cedula}
-                    onChange={(e) =>
-                      setNewCustomer({ ...newCustomer, cedula: e.target.value })
-                    }
-                    required
-                  />
+                  <input type="text" className="w-full p-2 border rounded" value={newCustomer.cedula} onChange={(e) => setNewCustomer({ ...newCustomer, cedula: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block mb-1">Nombre</label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border rounded"
-                    value={newCustomer.nombre}
-                    onChange={(e) =>
-                      setNewCustomer({ ...newCustomer, nombre: e.target.value })
-                    }
-                    required
-                  />
+                  <input type="text" className="w-full p-2 border rounded" value={newCustomer.nombre} onChange={(e) => setNewCustomer({ ...newCustomer, nombre: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block mb-1">Apellido</label>
@@ -448,22 +385,11 @@ export default function EmployeeRentalPage() {
                 </div>
                 <div>
                   <label className="block mb-1">Email</label>
-                  <input
-                    type="email"
-                    className="w-full p-2 border rounded"
-                    value={newCustomer.email}
-                    onChange={(e) =>
-                      setNewCustomer({ ...newCustomer, email: e.target.value })
-                    }
-                    required
-                  />
+                  <input type="email" className="w-full p-2 border rounded" value={newCustomer.email} onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })} required />
                 </div>
               </div>
               <div className="mt-6">
-                <button
-                  type="submit"
-                  className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-                >
+                <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
                   Crear Cliente
                 </button>
               </div>
@@ -497,34 +423,22 @@ export default function EmployeeRentalPage() {
                 <p>
                   {selectedCustomer?.nombre} {selectedCustomer?.apellido}
                 </p>
-                <p className="text-gray-600">
-                  Cédula: {selectedCustomer?.cedula}
-                </p>
+                <p className="text-gray-600">Cédula: {selectedCustomer?.cedula}</p>
               </div>
 
               <div className="border-b pb-4">
                 <h4 className="font-semibold mb-2">Detalles del Alquiler</h4>
-                <p>
-                  Fecha de inicio: {new Date(fechaInicio).toLocaleDateString()}
-                </p>
+                <p>Fecha de inicio: {new Date(fechaInicio).toLocaleDateString()}</p>
                 <p>Fecha de fin: {new Date(fechaFin).toLocaleDateString()}</p>
-                <p className="text-lg font-bold mt-2">
-                  Total: ${calculateTotal()}
-                </p>
+                <p className="text-lg font-bold mt-2">Total: ${calculateTotal()}</p>
               </div>
             </div>
 
             <div className="mt-6 flex gap-4">
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600"
-              >
+              <button onClick={() => setShowConfirmModal(false)} className="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600">
                 Cancelar
               </button>
-              <button
-                onClick={handleCreateRental}
-                className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600"
-              >
+              <button onClick={handleCreateRental} className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600">
                 Confirmar Alquiler
               </button>
             </div>

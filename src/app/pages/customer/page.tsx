@@ -112,6 +112,7 @@ const Customer: React.FC = () => {
       .then((data) => {
         const filteredData = data
           .filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado"&& vehicle.estado == "Disponible")
+
           .map((vehicle: Vehicle) => ({
             ...vehicle,
             precio: vehicle.tarifas[0]?.tarifa || 0, // Toma el precio de la primera tarifa, o 0 si no hay tarifas
@@ -216,6 +217,20 @@ const Customer: React.FC = () => {
           }
           className="p-2 border rounded-lg text-gray-800 bg-white"
         />
+
+{/*
+        <select
+          id="status-cmbx"
+          value={filterAvailability}
+          onChange={(e) => setFilterAvailability(e.target.value)}
+          className="p-2 border rounded-lg text-gray-800 bg-white"
+        >
+          <option value="Todos">Todos los estados</option>
+          <option value="Disponible">Disponible</option>
+          <option value="Alquilado">Alquilado</option>
+        </select>
+*/}
+
         <select
           id="year-cmbx"
           value={filterYear}
@@ -290,7 +305,7 @@ const Customer: React.FC = () => {
             {/* Botón para cerrar el modal */}
             <button
               onClick={closeModal}
-              className="absolute top-2 right-2 text-2xl font-bold text-gray-600 hover:text-red-600"
+              className="absolute top-2 right-6 text-2xl font-bold text-gray-600 hover:text-red-600"
             >
               &times;
             </button>
@@ -316,7 +331,10 @@ const Customer: React.FC = () => {
                 <strong>Modelo:</strong> {selectedVehicle.modelo}
               </p>
               <p className="text-gray-700">
-                <strong>Modelo:</strong> {selectedVehicle.color}
+                <strong>Año:</strong> {selectedVehicle.anio}
+              </p>
+              <p className="text-gray-700">
+                <strong>Color:</strong> {selectedVehicle.color}
               </p>
               <p className="text-gray-700">
                 <strong>Precio por día:</strong> $

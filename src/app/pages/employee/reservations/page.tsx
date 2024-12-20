@@ -22,14 +22,10 @@ const ReservationsPage = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [rentalToAuthorize, setRentalToAuthorize] = useState<string | null>(
-    null
-  );
+  const [rentalToAuthorize, setRentalToAuthorize] = useState<string | null>(null);
   const [devolucionDetails, setDevolucionDetails] = useState<any>(null);
   const [isDevolucionModalOpen, setIsDevolucionModalOpen] = useState(false);
-  const [selectedRental, setSelectedRental] = useState<{ _id: string } | null>(
-    null
-  );
+  const [selectedRental, setSelectedRental] = useState<{ _id: string } | null>(null);
   const [piezasRevisadas, setPiezasRevisadas] = useState([
     { pieza: "Motor", estado: "Correcto" },
     { pieza: "Parabrisas", estado: "Correcto" },
@@ -44,7 +40,7 @@ const ReservationsPage = () => {
 
   const fetchRentals = async () => {
     try {
-      const response = await fetch("http://localhost:8080/rentals", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rentals`, {
         credentials: "include",
       });
       if (response.ok) {
@@ -69,17 +65,14 @@ const ReservationsPage = () => {
     if (!rentalToAuthorize) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/rentals/autorizar/${rentalToAuthorize}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({}),
-        }
-      );
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rentals/autorizar/${rentalToAuthorize}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({}),
+      });
 
       if (response.ok) {
         toast.success("Reservación autorizada exitosamente");
@@ -98,19 +91,16 @@ const ReservationsPage = () => {
     if (!selectedRental) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/rentals/devolucion/${selectedRental._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            piezasRevisadas: piezasRevisadas,
-          }),
-        }
-      );
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rentals/devolucion/${selectedRental._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          piezasRevisadas: piezasRevisadas,
+        }),
+      });
 
       const data = await response.json();
       if (response.ok) {
@@ -131,11 +121,7 @@ const ReservationsPage = () => {
     setPiezasRevisadas(newPiezas);
   };
 
-  const filteredRentals = rentals.filter(
-    (rental) =>
-      rental.cliente?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.auto?.placa?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRentals = rentals.filter((rental) => rental.cliente?.email?.toLowerCase().includes(searchTerm.toLowerCase()) || rental.auto?.placa?.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="container mx-auto p-4">
@@ -162,13 +148,7 @@ const ReservationsPage = () => {
               {piezasRevisadas.map((pieza, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <span className="font-medium">{pieza.pieza}</span>
-                  <select
-                    value={pieza.estado}
-                    onChange={(e) =>
-                      handlePiezaEstadoChange(index, e.target.value)
-                    }
-                    className="border rounded p-2"
-                  >
+                  <select value={pieza.estado} onChange={(e) => handlePiezaEstadoChange(index, e.target.value)} className="border rounded p-2">
                     <option value="Correcto">Correcto</option>
                     <option value="Dañado">Dañado</option>
                   </select>
@@ -177,27 +157,17 @@ const ReservationsPage = () => {
             </div>
 
             <div className="mt-6 flex justify-end space-x-4">
-              <button
-                onClick={() => setIsDevolucionModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              >
+              <button onClick={() => setIsDevolucionModalOpen(false)} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
                 Cancelar
               </button>
-              <button
-                onClick={handleDevolucion}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
+              <button onClick={handleDevolucion} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                 Confirmar Devolución
               </button>
             </div>
           </div>
         </div>
       )}
-      <ConfirmationModal
-        isOpen={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        onConfirm={confirmAutorizar}
-      />
+      <ConfirmationModal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)} onConfirm={confirmAutorizar} />
 
       <DevolutionModal
         details={devolucionDetails}

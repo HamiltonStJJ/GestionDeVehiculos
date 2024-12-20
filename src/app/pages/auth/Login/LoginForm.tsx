@@ -10,6 +10,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -44,7 +45,29 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <InputField label="Correo electrónico" id="email-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tucorreo@example.com" />
+  <InputField
+    id="correo"
+    label="Correo electrónico"
+    type="email"
+    value={email}
+    onChange={(e) => {
+      const input = e.target.value;
+      setEmail(input);
+      
+      // Validación de formato de correo electrónico
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+      // Verificar si el correo es válido
+      if (!emailRegex.test(input)) {
+        setError("Por favor ingresa un correo electrónico válido.");
+      } else {
+        setError(null); // Limpiar el error si el correo es válido
+      }
+    }}
+    placeholder="tucorreo@example.com"
+  />
+  
+  {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
       <InputField label="Contraseña" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <AuthButton id="login-btn" text="Ingresar" onClick={() => handleSubmit} isLoading={isLoading} />
