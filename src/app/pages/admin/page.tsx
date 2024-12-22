@@ -4,6 +4,7 @@ import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import TarifaModal from "./tarifaCRUD";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/SideBar";
+import ImageUploader from "@/components/ImageUploader";
 
 interface Tarifa {
   _id: string;
@@ -319,6 +320,13 @@ const handleChange = (
       setIsModalOpen(false);
     }
   };
+    const handleImageUpload = (url: string) => {
+    // Actualiza el campo de imagen con la URL pública recibida
+    setFormData((prevData) => ({
+      ...prevData,
+      imagen: url,
+    }));
+  };
 
   const handleEdit = (vehicle: Vehicle) => {
     setEditingId(vehicle._id);
@@ -389,7 +397,12 @@ const handleChange = (
           <FormInput id="modelo" label="Modelo" name="modelo" value={formData.modelo} onChange={handleChange} />
           <FormInput id="anio" label="Año" name="anio" type="number" value={formData.anio} onChange={handleChange} />
           <FormInput id="color" label="Color" name="color" options={colors} value={formData.color} onChange={handleChange} />
-          <FormInput id="imagen" label="Imagen URL" name="imagen" value={formData.imagen} onChange={handleChange} />
+          {/* Componente de subida de imágenes */}
+      <div className="col-span-full">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Subir Imagen</label>
+        <ImageUploader onImageUpload={handleImageUpload} />
+      </div>
+
           <FormInput id="placa" label="Placa" name="placa" value={formData.placa} onChange={handleChange} disabled={!!editingId} />
           <FormInput
             id="kilometraje"
