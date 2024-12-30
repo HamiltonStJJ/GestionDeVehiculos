@@ -58,46 +58,58 @@ const Customer: React.FC = () => {
   };
 
   const handleReservation = async (
-    event: React.FormEvent,
-    vehicle: Vehicle
-  ) => {
-    event.preventDefault();
-    const userDataString = localStorage.getItem("userData");
-    const userData = userDataString ? JSON.parse(userDataString) : null;
+  event: React.FormEvent,
+  vehicle: Vehicle
+) => {
+  event.preventDefault();
 
-    if (!userData || !fechaInicio || !fechaFin) return;
+  const userDataString = localStorage.getItem("userData");
+  const userData = userDataString ? JSON.parse(userDataString) : null;
 
-    const reservationData = {
-      cliente: userData._id,
-      auto: vehicle._id,
-      fechaInicio,
-      fechaFin,
-      tarifaAplicada: vehicle.tarifas[0]?._id || "N/A",
-      total: calcularTotal(),
-    };
+  if (!userData || !fechaInicio || !fechaFin) {
+    toast.error("Por favor, asegúrese de ingresar todas las fechas.");
+    return;
+  }
+  // Convertir las fechas al formato ISO 8601 con horas específicas
+  const fechaInicioISO = new Date(fechaInicio);
+  fechaInicioISO.setHours(0, 1, 0, 0); // Establecer a las 00:01
+  const fechaFinISO = new Date(fechaFin);
+  fechaFinISO.setHours(23, 59, 0, 0); // Establecer a las 23:59
 
-    try {
-      const response = await fetch(`${API_URL}/rentals/cliente`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reservationData),
-        credentials: "include",
-      });
+  const fechaInicioISOFormatted = fechaInicioISO.toISOString();
+  const fechaFinISOFormatted = fechaFinISO.toISOString();
 
-      if (response.ok) {
-        toast.success("Reserva realizada con éxito.");
-        closeModal();
-      } else {
-        toast.error("Seleccione una fecha diferente.");
-        setShowConfirmModal(false);
-      }
-    } catch (error) {
-      console.error("Error al realizar la reserva:", error);
-      alert("Error de conexión.");
-    }
+  // Crear el objeto de datos para la reserva
+  const reservationData = {
+    cliente: userData._id,
+    auto: vehicle._id,
+    fechaInicio: fechaInicioISOFormatted,
+    fechaFin: fechaFinISOFormatted,
+    tarifaAplicada: vehicle.tarifas[0]?._id || "N/A",
   };
+
+  try {
+    const response = await fetch(`${API_URL}/rentals/cliente`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(reservationData),
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      toast.success("Reserva realizada con éxito.");
+      closeModal();
+    } else {
+      toast.error("Seleccione una fecha diferente.");
+      setShowConfirmModal(false);
+    }
+  } catch (error) {
+    console.error("Error al realizar la reserva:", error);
+    alert("Error de conexión.");
+  }
+};
 
   useEffect(() => {
     setIsLoading(true);
