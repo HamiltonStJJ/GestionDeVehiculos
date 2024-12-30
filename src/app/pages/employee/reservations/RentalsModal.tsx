@@ -1,4 +1,4 @@
-import React from 'react';
+import React , {useState}from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, AlertCircle, DollarSign, ClipboardCheck } from 'lucide-react';
 
@@ -6,11 +6,22 @@ import { Check, X, AlertCircle, DollarSign, ClipboardCheck } from 'lucide-react'
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>; 
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, onConfirm }) => {
-  return (
+const [isLoading, setIsLoading] = useState(false);
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await onConfirm(); // Llamar a la función de confirmación
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -29,11 +40,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
               <AlertCircle className="w-6 h-6 mr-2" />
               <h2 className="text-2xl font-bold">Confirmar Autorización</h2>
             </div>
-            
+
             <p className="mb-6 text-gray-600">
               ¿Está seguro que desea autorizar esta reservación?
             </p>
-            
+
             <div className="flex justify-end space-x-4">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -45,17 +56,26 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
                 <X className="w-4 h-4 mr-2" />
                 Cancelar
               </motion.button>
-              
+
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onConfirm}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg 
-                          hover:bg-green-700 transition-colors duration-200 
-                          flex items-center"
+                whileHover={{ scale: isLoading ? 1 : 1.05 }}
+                whileTap={{ scale: isLoading ? 1 : 0.95 }}
+                onClick={handleConfirm}
+                disabled={isLoading}
+                className={`px-6 py-2 rounded-lg flex items-center justify-center ${
+                  isLoading
+                    ? 'bg-green-500 cursor-not-allowed'
+                    : 'bg-green-600 hover:bg-green-700'
+                } text-white transition-colors duration-200`}
               >
-                <Check className="w-4 h-4 mr-2" />
-                Confirmar
+                {isLoading ? (
+                  <span className="loading loading-dots loading-lg" />
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Confirmar
+                  </>
+                )}
               </motion.button>
             </div>
           </motion.div>

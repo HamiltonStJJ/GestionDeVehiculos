@@ -75,7 +75,7 @@ const ReservationsPage = () => {
       });
 
       if (response.ok) {
-        toast.success("Reservación autorizada exitosamente");
+        toast.success("Correo de confirmación enviado al cliente");
         fetchRentals();
       } else {
         toast.error("Error al autorizar la reservación");
