@@ -104,8 +104,9 @@ const ReservationsPage = () => {
 
       const data = await response.json();
       if (response.ok) {
-        setDevolucionDetails(data);
-        toast.success("Devolución procesada exitosamente");
+        const rentalDetails = data.rentalDetails;
+        setDevolucionDetails(rentalDetails);
+        toast.success("Devolución procesada exitosamente. Se envió un correo al cliente con el enlace de pago.");
         fetchRentals();
       } else {
         toast.error("Error al procesar la devolución");

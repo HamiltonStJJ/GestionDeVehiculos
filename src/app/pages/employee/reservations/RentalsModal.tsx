@@ -69,7 +69,7 @@ return (
                 } text-white transition-colors duration-200`}
               >
                 {isLoading ? (
-                  <span className="loading loading-dots loading-lg" />
+                  <span className="loading loading-dots loading-mg" />
                 ) : (
                   <>
                     <Check className="w-4 h-4 mr-2" />
@@ -87,23 +87,26 @@ return (
 
 // Devolution Details Modal
 interface DevolutionDetails {
-  rental: {
-    total: number;
-    piezasRevisadas: {
-      _id: string;
-      pieza: string;
-      estado: string;
-      penalizacion: number;
-    }[];
+  auto: {
+    nombre: string;
+    valor: number;
   };
-  penalizacionTotal: number;
+  piezasRevisadas: {
+    pieza: string;
+    estado: string;
+    penalizacion: number;
+  }[];
+  valorDanios: number;
+  valorDias: number;
+  total: number;
+  restante: number;
+  fechaDevolucion: string;
 }
 
 interface DevolutionModalProps {
   details: DevolutionDetails;
   onClose: () => void;
 }
-
 const DevolutionModal: React.FC<DevolutionModalProps> = ({ details, onClose }) => {
   if (!details) return null;
 
@@ -137,24 +140,33 @@ const DevolutionModal: React.FC<DevolutionModalProps> = ({ details, onClose }) =
 
         <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
           <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
-            <p className="font-medium">Total Original:</p>
-            <p className="text-lg font-bold text-green-600">
-              ${details.rental.total - details.penalizacionTotal}
-            </p>
+            <p className="font-medium">Nombre del Vehículo:</p>
+            <p className="text-lg font-bold text-blue-600">{details.auto.nombre}</p>
           </div>
-          
+
           <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
-            <p className="font-medium">Penalización Total:</p>
-            <p className="text-lg font-bold text-red-600">
-              ${details.penalizacionTotal}
-            </p>
+            <p className="font-medium">Valor del Vehículo:</p>
+            <p className="text-lg font-bold text-green-600">${details.auto.valor}</p>
           </div>
-          
+
+          <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+            <p className="font-medium">Total de Daños:</p>
+            <p className="text-lg font-bold text-red-600">${details.valorDanios}</p>
+          </div>
+
+          <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+            <p className="font-medium">Penalización por Días Extra:</p>
+            <p className="text-lg font-bold text-red-600">${details.valorDias}</p>
+          </div>
+
           <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
             <p className="font-medium">Total Final:</p>
-            <p className="text-lg font-bold text-blue-600">
-              ${details.rental.total}
-            </p>
+            <p className="text-lg font-bold text-blue-600">${details.total}</p>
+          </div>
+
+          <div className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm">
+            <p className="font-medium">Monto Restante a pagar:</p>
+            <p className="text-lg font-bold text-orange-600">${details.restante}</p>
           </div>
         </div>
 
@@ -164,14 +176,23 @@ const DevolutionModal: React.FC<DevolutionModalProps> = ({ details, onClose }) =
             Detalle de Penalizaciones
           </h3>
           <div className="space-y-2">
-            {details.rental.piezasRevisadas.map((pieza) => (
+            {details.piezasRevisadas.map((pieza, index) => (
               <motion.div
-                key={pieza._id}
+                key={index}
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 className="ml-4 p-3 bg-white rounded-lg shadow-sm flex justify-between"
               >
-                <span>{pieza.pieza}: <span className={`font-medium ${pieza.estado === 'Dañado' ? 'text-red-500' : 'text-green-500'}`}>{pieza.estado}</span></span>
+                <span>
+                  {pieza.pieza}:{" "}
+                  <span
+                    className={`font-medium ${
+                      pieza.estado === "Dañado" ? "text-red-500" : "text-green-500"
+                    }`}
+                  >
+                    {pieza.estado}
+                  </span>
+                </span>
                 <span className="font-bold">${pieza.penalizacion}</span>
               </motion.div>
             ))}
@@ -195,5 +216,4 @@ const DevolutionModal: React.FC<DevolutionModalProps> = ({ details, onClose }) =
     </motion.div>
   );
 };
-
 export { ConfirmationModal, DevolutionModal };
