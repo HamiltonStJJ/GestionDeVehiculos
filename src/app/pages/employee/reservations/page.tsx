@@ -26,6 +26,7 @@ const ReservationsPage = () => {
   const [devolucionDetails, setDevolucionDetails] = useState<any>(null);
   const [isDevolucionModalOpen, setIsDevolucionModalOpen] = useState(false);
   const [selectedRental, setSelectedRental] = useState<{ _id: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [piezasRevisadas, setPiezasRevisadas] = useState([
     { pieza: "Motor", estado: "Correcto" },
     { pieza: "Parabrisas", estado: "Correcto" },
@@ -37,6 +38,15 @@ const ReservationsPage = () => {
   useEffect(() => {
     fetchRentals();
   }, []);
+    const handleConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await handleDevolucion(); // Llamar a la función de confirmación
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   const fetchRentals = async () => {
     try {
@@ -161,10 +171,18 @@ const ReservationsPage = () => {
               <button onClick={() => setIsDevolucionModalOpen(false)} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
                 Cancelar
               </button>
-              <button onClick={handleDevolucion} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                Confirmar Devolución
-              </button>
-            </div>
+           <button
+  onClick={handleConfirm}
+  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center w-48"
+>
+  {isLoading ? (
+    <span className="loading loading-dots loading-mg" />
+  ) : (
+    "Confirmar Devolución"
+  )}
+</button>
+
+           </div>
           </div>
         </div>
       )}
