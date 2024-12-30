@@ -99,7 +99,7 @@ const Customer: React.FC = () => {
     });
 
     if (response.ok) {
-      toast.success("Reserva realizada con éxito.");
+      toast.success("Reserva realizada con éxito. Un agente autorizará su solicitud y recibirá un correo de confirmación.");
       closeModal();
     } else {
       toast.error("Seleccione una fecha diferente.");

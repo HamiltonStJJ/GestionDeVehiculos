@@ -57,6 +57,8 @@ export default function EmployeeRentalPage() {
   const [fechaFin, setFechaFin] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
   // Cargar vehículos
@@ -76,6 +78,15 @@ export default function EmployeeRentalPage() {
     };
     fetchVehicles();
   }, []);
+    const handleConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await handleCreateRental({ preventDefault: () => {} } as React.FormEvent); // Llamar a la función de confirmación
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   // Cargar clientes
   useEffect(() => {
@@ -148,43 +159,58 @@ export default function EmployeeRentalPage() {
   };
 
   // Crear alquiler
-  const handleCreateRental = async () => {
-    if (!selectedVehicle || !selectedCustomer || !fechaInicio || !fechaFin) return;
 
-    const rentalData = {
-      cliente: selectedCustomer._id,
-      auto: selectedVehicle._id,
-      fechaInicio,
-      fechaFin,
-      tarifaAplicada: selectedVehicle.tarifas[0]?._id,
-      total: calculateTotal(),
-    };
+const handleCreateRental = async (event: React.FormEvent) => {
+  event.preventDefault();
 
-    try {
-      const response = await fetch(`${API_URL}/rentals`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(rentalData),
-        credentials: "include",
-      });
+  if (!selectedVehicle || !selectedCustomer || !fechaInicio || !fechaFin) {
+    toast.error("Por favor, asegúrese de completar todos los campos.");
+    return;
+  }
 
-      if (response.ok) {
-        toast.success("Alquiler creado exitosamente");
-        // Resetear formulario
-        setSelectedVehicle(null);
-        setSelectedCustomer(null);
-        setFechaInicio("");
-        setFechaFin("");
-        setShowConfirmModal(false);
-      } else {
+  // Convertir las fechas al formato ISO 8601 con horas específicas
+  const fechaInicioISO = new Date(fechaInicio);
+  fechaInicioISO.setHours(0, 1, 0, 0); // Establecer a las 00:01
+  const fechaFinISO = new Date(fechaFin);
+  fechaFinISO.setHours(23, 59, 0, 0); // Establecer a las 23:59
 
-        toast.error("Ya se encuentra alquilado dentro de las fechas seleccionadas");
+  const fechaInicioISOFormatted = fechaInicioISO.toISOString();
+  const fechaFinISOFormatted = fechaFinISO.toISOString();
 
-      }
-    } catch (error) {
-      toast.error("Error al crear el alquiler");
-    }
+  // Crear el objeto de datos para el alquiler
+  const rentalData = {
+    cliente: selectedCustomer._id,
+    auto: selectedVehicle._id,
+    fechaInicio: fechaInicioISOFormatted,
+    fechaFin: fechaFinISOFormatted,
+    tarifaAplicada: selectedVehicle.tarifas[0]?._id || "N/A",
   };
+
+  try {
+    const response = await fetch(`${API_URL}/rentals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(rentalData),
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      toast.success("Alquiler creado exitosamente, se ha enviado un correo al cliente para el pago inicial.");
+      // Resetear formulario
+      setSelectedVehicle(null);
+      setSelectedCustomer(null);
+      setFechaInicio("");
+      setFechaFin("");
+      setShowConfirmModal(false);
+    } else {
+      toast.error("Ya se encuentra alquilado dentro de las fechas seleccionadas.");
+    }
+  } catch (error) {
+    console.error("Error al crear el alquiler:", error);
+    toast.error("Error al crear el alquiler.");
+  }
+};
+
 
   return (
     <div className="container mx-auto p-4">
@@ -438,8 +464,14 @@ export default function EmployeeRentalPage() {
               <button onClick={() => setShowConfirmModal(false)} className="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600">
                 Cancelar
               </button>
-              <button onClick={handleCreateRental} className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600">
-                Confirmar Alquiler
+              <button onClick={handleConfirm} className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600">
+                              {isLoading ? (
+                  <span className="loading loading-dots loading-mg" />
+                ) : (
+                  <>
+                    Confirmar Alquiler
+                  </>
+                )}
               </button>
             </div>
           </div>
