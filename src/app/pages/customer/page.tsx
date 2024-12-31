@@ -346,7 +346,7 @@ const Customer: React.FC = () => {
               Seleccione un rango de fechas para reservar un vehículo.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {vehicles.map((vehicle) => (
+              {filteredVehicles.map((vehicle) => (
                 <div
                   key={vehicle._id}
                   className="bg-white p-6 rounded-xl shadow-lg border hover:shadow-2xl transition-shadow duration-300"
