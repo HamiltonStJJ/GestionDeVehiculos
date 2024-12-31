@@ -50,6 +50,18 @@ export default function EmployeeRentalPage() {
   const [isLoading, setIsLoading] = useState(false);
 
 
+
+   //    // Estados para el nuevo cliente
+  const [newCustomer, setNewCustomer] = useState({
+    cedula: "",
+    nombre: "",
+    apellido: "",
+    direccion: "",
+    telefono: "",
+    email: "",
+    password: "temp123", // Contraseña temporal
+  });
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
   // Obtener vehículos disponibles basado en fechas
@@ -127,7 +139,29 @@ export default function EmployeeRentalPage() {
     fetchCustomers();
   }, []);
 
-  
+    // Crear nuevo cliente
+  const handleCreateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCustomer),
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCustomers([...customers, data]);
+        setSelectedCustomer(data);
+        setShowCustomerModal(false);
+      }
+    } catch (error) {
+      console.error("Error creating customer:", error);
+    }
+  };
+
+
 
   // Calcular el total del alquiler
   const calculateTotal = () => {
@@ -341,6 +375,87 @@ const handleCreateRental = async (event: React.FormEvent) => {
               </button>
         </div>
       )}
+              {/* Modal de Nuevo Cliente */}
+      {showCustomerModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Nuevo Cliente</h3>
+              <button onClick={() => setShowCustomerModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCustomer}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block mb-1">Cédula</label>
+                  <input type="text" className="w-full p-2 border rounded" value={newCustomer.cedula} onChange={(e) => setNewCustomer({ ...newCustomer, cedula: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block mb-1">Nombre</label>
+                  <input type="text" className="w-full p-2 border rounded" value={newCustomer.nombre} onChange={(e) => setNewCustomer({ ...newCustomer, nombre: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block mb-1">Apellido</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded"
+                    value={newCustomer.apellido}
+                    onChange={(e) =>
+                      setNewCustomer({
+                        ...newCustomer,
+                        apellido: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">Dirección</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded"
+                    value={newCustomer.direccion}
+                    onChange={(e) =>
+                      setNewCustomer({
+                        ...newCustomer,
+                        direccion: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">Teléfono</label>
+                  <input
+                    type="tel"
+                    className="w-full p-2 border rounded"
+                    value={newCustomer.telefono}
+                    onChange={(e) =>
+                      setNewCustomer({
+                        ...newCustomer,
+                        telefono: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">Email</label>
+                  <input type="email" className="w-full p-2 border rounded" value={newCustomer.email} onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })} required />
+                </div>
+              </div>
+              <div className="mt-6">
+                <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+                  Crear Cliente
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      
       {/* Modal de Confirmación de Alquiler */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

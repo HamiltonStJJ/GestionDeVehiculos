@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import VehicleSkeleton from "@/components/VehicleSkeleton";
 import Sidebar from "@/components/SideBar";
 import { toast } from "react-toastify";
+import { Search, UserPlus, X } from "lucide-react";
 
 interface Vehicle {
   _id: string;
@@ -26,6 +27,13 @@ interface Vehicle {
     _id: string;
     tarifa: number;
   }[]; // Cambiado para reflejar el formato del array de tarifas
+}
+interface Customer {
+  _id: string;
+  cedula: string;
+  nombre: string;
+  apellido: string;
+  email: string;
 }
 
 const Customer: React.FC = () => {
@@ -97,6 +105,7 @@ const Customer: React.FC = () => {
     fetchVehicles();
   }, [fechaInicio && fechaFin]); // Solo se ejecuta cuando ambas fechas están seleccionadas
 
+ 
   const handleReservation = async (
     event: React.FormEvent,
     vehicle: Vehicle
