@@ -198,8 +198,6 @@ const Customer: React.FC = () => {
   const closeModal = () => {
     setSelectedVehicle(null);
     setIsSidebarOpen(false);
-    setFechaInicio("");
-    setFechaFin("");
     setShowConfirmModal(false);
   };
 
