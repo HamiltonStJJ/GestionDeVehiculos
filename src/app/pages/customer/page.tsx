@@ -472,79 +472,6 @@ const Customer: React.FC = () => {
                 {selectedVehicle.tarifas[0]?.tarifa || 0}
               </p>
             </div>
-
-            {/* Botón para desplegar la sección de fechas */}
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition duration-200"
-            >
-              {isSidebarOpen ? "Ocultar Fechas" : "Seleccionar Fechas"}
-            </button>
-
-            {/* Sección de selección de fechas */}
-            {isSidebarOpen && (
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">
-                  Selecciona las fechas de tu reserva
-                </h3>
-                <div className="mb-4">
-                  <label
-                    htmlFor="fechaInicio"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Fecha de inicio
-                  </label>
-                  <input
-                    type="date"
-                    id="fechaInicio"
-                    value={fechaInicio}
-                    onChange={(e) => {
-                      const nuevaFechaInicio = e.target.value;
-                      setFechaInicio(nuevaFechaInicio);
-
-                      // Reiniciar fecha de fin si ya no es válida
-                      if (
-                        fechaFin &&
-                        new Date(nuevaFechaInicio) > new Date(fechaFin)
-                      ) {
-                        setFechaFin(""); // Resetea la fecha de fin si la fecha de inicio cambia a una posterior
-                      }
-                    }}
-                    min={new Date().toISOString().split("T")[0]} // Establece la fecha mínima como hoy
-                    className="w-full p-2 border rounded-lg"
-                    required
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label
-                    htmlFor="fechaFin"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Fecha de fin
-                  </label>
-                  <input
-                    type="date"
-                    id="fechaFin"
-                    value={fechaFin}
-                    onChange={(e) => {
-                      const nuevaFechaFin = e.target.value;
-                      if (new Date(nuevaFechaFin) >= new Date(fechaInicio)) {
-                        setFechaFin(nuevaFechaFin);
-                      } else {
-                        alert(
-                          "La fecha de fin no puede ser anterior a la fecha de inicio."
-                        );
-                        setFechaFin(""); // Resetea la fecha de fin si es inválida
-                      }
-                    }}
-                    min={fechaInicio} // Establece como mínimo la fecha de inicio
-                    className="w-full p-2 border rounded-lg"
-                    required
-                    disabled={!fechaInicio} // Desactiva el campo si no hay fecha de inicio seleccionada
-                  />
-                </div>
-
                 <div className="mb-4">
                   <p className="text-lg font-bold text-gray-800">
                     Total: ${calcularTotal()} USD
@@ -559,7 +486,7 @@ const Customer: React.FC = () => {
                   Confirmar Reserva
                 </button>
               </div>
-            )}
+      
 
             {/* Modal de confirmación */}
             {showConfirmModal && (
@@ -595,7 +522,6 @@ const Customer: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
       )}
     </>
   );
