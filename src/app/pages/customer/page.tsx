@@ -57,6 +57,46 @@ const Customer: React.FC = () => {
     return days > 0 ? days * (selectedVehicle?.tarifas[0]?.tarifa || 0) : 0;
   };
 
+  // Modifica el useEffect para el fetching de vehículos
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      setIsLoading(true);
+      try {
+        // Solo realiza la búsqueda por fechas si ambas están seleccionadas
+        const endpoint =
+          fechaInicio && fechaFin
+            ? `${API_URL}/cars/estados?estado=Disponible&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+            : `${API_URL}/cars`;
+
+        const response = await fetch(endpoint, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        const data = await response.json();
+        const filteredData = data
+          .filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado")
+          .map((vehicle: Vehicle) => ({
+            ...vehicle,
+            precio: vehicle.tarifas[0]?.tarifa || 0,
+          }));
+
+        setVehicles(filteredData);
+        setFilteredVehicles(filteredData);
+      } catch (error) {
+        console.error("Error al cargar los vehículos:", error);
+        toast.error("Error al cargar los vehículos");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVehicles();
+  }, [fechaInicio && fechaFin]); // Solo se ejecuta cuando ambas fechas están seleccionadas
+
   const handleReservation = async (
     event: React.FormEvent,
     vehicle: Vehicle
@@ -102,6 +142,7 @@ const Customer: React.FC = () => {
         toast.success(
           "Reserva realizada con éxito. Un agente autorizará su solicitud y recibirá un correo de confirmación."
         );
+         
         closeModal();
       } else {
         toast.error("Seleccione una fecha diferente.");
@@ -112,46 +153,6 @@ const Customer: React.FC = () => {
       alert("Error de conexión.");
     }
   };
-
-  // Modifica el useEffect para el fetching de vehículos
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      setIsLoading(true);
-      try {
-        // Solo realiza la búsqueda por fechas si ambas están seleccionadas
-        const endpoint =
-          fechaInicio && fechaFin
-            ? `${API_URL}/cars/estados?estado=Disponible&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
-            : `${API_URL}/cars`;
-
-        const response = await fetch(endpoint, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-
-        const data = await response.json();
-        const filteredData = data
-          .filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado")
-          .map((vehicle: Vehicle) => ({
-            ...vehicle,
-            precio: vehicle.tarifas[0]?.tarifa || 0,
-          }));
-
-        setVehicles(filteredData);
-        setFilteredVehicles(filteredData);
-      } catch (error) {
-        console.error("Error al cargar los vehículos:", error);
-        toast.error("Error al cargar los vehículos");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchVehicles();
-  }, [fechaInicio && fechaFin]); // Solo se ejecuta cuando ambas fechas están seleccionadas
 
   const uniqueBrands = Array.from(
     new Set(vehicles.map((vehicle) => vehicle.marca))
