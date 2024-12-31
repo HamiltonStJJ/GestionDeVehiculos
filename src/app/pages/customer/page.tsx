@@ -364,18 +364,12 @@ const Customer: React.FC = () => {
                   <p className="text-gray-600 my-2">
                     <strong>Modelo:</strong> {vehicle.modelo}
                   </p>
-                  <p className="text-gray-600">
-                    <strong>Estado:</strong>{" "}
-                    {vehicle.estado === "Disponible" ? (
-                      <span className="text-green-600 font-semibold">
-                        Disponible
-                      </span>
-                    ) : (
-                      <span className="text-red-600 font-semibold">
-                        Alquilado
-                      </span>
-                    )}
-                  </p>
+                    <p className="text-gray-600">
+                    <strong>Precio por día:</strong>{" "}
+                    <span className="text-green-600 font-semibold">
+                      ${vehicle.tarifas[0]?.tarifa || 0}
+                    </span>
+                    </p>
                 </div>
               ))}
             </div>
