@@ -1,8 +1,8 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Search, UserPlus, X } from "lucide-react";
 import { toast } from "react-toastify";
+import { Search, UserPlus, X } from "lucide-react";
 
 interface Vehicle {
   _id: string;
@@ -29,68 +29,78 @@ interface Customer {
 }
 
 export default function EmployeeRentalPage() {
-  // Estados para vehículos
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
-  const [filterBrand, setFilterBrand] = useState("Todas");
 
-  // Estados para clientes
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+
+  const [fechaInicio, setFechaInicio] = useState<string>("");
+  const [fechaFin, setFechaFin] = useState<string>("");
+
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
+
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
 
-  // Estados para el nuevo cliente
-  const [newCustomer, setNewCustomer] = useState({
-    cedula: "",
-    nombre: "",
-    apellido: "",
-    direccion: "",
-    telefono: "",
-    email: "",
-    password: "temp123", // Contraseña temporal
-  });
-
-  // Estados para fechas y cálculos
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [fechaFin, setFechaFin] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
-  // Cargar vehículos
+  // Obtener vehículos disponibles basado en fechas
   useEffect(() => {
     const fetchVehicles = async () => {
+      if (!fechaInicio || !fechaFin) return;
+
+      setIsLoadingVehicles(true);
       try {
-        const response = await fetch(`${API_URL}/cars`, {
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${API_URL}/cars/estados?estado=Disponible&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Error al cargar los vehículos.");
+        }
+
         const data = await response.json();
-        const availableVehicles = data.filter((v: Vehicle) => v.estado !== "Eliminado" && v.estado !== "Alquilado");
-        setVehicles(availableVehicles);
-        setFilteredVehicles(availableVehicles);
+        setVehicles(data);
+        setFilteredVehicles(data);
       } catch (error) {
-        console.error("Error loading vehicles:", error);
+        console.error(error);
+        toast.error("Error al cargar los vehículos.");
+      } finally {
+        setIsLoadingVehicles(false);
       }
     };
+
     fetchVehicles();
-  }, []);
-    const handleConfirm = async () => {
+  }, [fechaInicio, fechaFin]);
+
+   const handleConfirm = async () => {
     setIsLoading(true);
     try {
-      await handleCreateRental({ preventDefault: () => {} } as React.FormEvent); // Llamar a la función de confirmación
+            await handleCreateRental({ preventDefault: () => {} } as React.FormEvent); // Llamar a la función de confirmación
     } finally {
       setIsLoading(false);
     }
   };
 
-
-  // Cargar clientes
+  // Obtener clientes
   useEffect(() => {
     const fetchCustomers = async () => {
+      setIsLoadingCustomers(true);
       try {
         const response = await fetch(`${API_URL}/users`, {
           method: "GET",
@@ -101,33 +111,25 @@ export default function EmployeeRentalPage() {
         });
 
         if (!response.ok) {
-          throw new Error("Error al cargar los usuarios");
+          throw new Error("Error al cargar los clientes.");
         }
 
         const data = await response.json();
-        console.log("Datos recibidos:", data); // Para debugging
-
-        const filteredCustomers = data.filter((user: any) => user.rol === "customer" || user.rol === "cliente");
-        console.log("Clientes filtrados:", filteredCustomers); // Para debugging
-
-        setCustomers(filteredCustomers);
+        setCustomers(data.filter((c: any) => c.rol === "customer" || c.rol === "cliente"));
       } catch (error) {
-        console.error("Error loading customers:", error);
+        console.error("Error al cargar clientes:", error);
+        toast.error("Error al cargar los clientes.");
+      } finally {
+        setIsLoadingCustomers(false);
       }
     };
+
     fetchCustomers();
   }, []);
-  // Filtrar vehículos
-  const filterVehicles = (brand: string) => {
-    setFilterBrand(brand);
-    if (brand === "Todas") {
-      setFilteredVehicles(vehicles);
-    } else {
-      setFilteredVehicles(vehicles.filter((v) => v.marca === brand));
-    }
-  };
 
-  // Calcular precio total
+  
+
+  // Calcular el total del alquiler
   const calculateTotal = () => {
     if (!fechaInicio || !fechaFin || !selectedVehicle) return 0;
     const start = new Date(fechaInicio);
@@ -135,31 +137,9 @@ export default function EmployeeRentalPage() {
     const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     return days * (selectedVehicle.tarifas[0]?.tarifa || 0);
   };
-
-  // Crear nuevo cliente
-  const handleCreateCustomer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(`${API_URL}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newCustomer),
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCustomers([...customers, data]);
-        setSelectedCustomer(data);
-        setShowCustomerModal(false);
-      }
-    } catch (error) {
-      console.error("Error creating customer:", error);
-    }
-  };
+ 
 
   // Crear alquiler
-
 const handleCreateRental = async (event: React.FormEvent) => {
   event.preventDefault();
 
@@ -209,120 +189,140 @@ const handleCreateRental = async (event: React.FormEvent) => {
     console.error("Error al crear el alquiler:", error);
     toast.error("Error al crear el alquiler.");
   }
-};
+}; 
 
-
+  // Renderizado condicional
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Gestión de Alquileres</h1>
 
-      {/* Sección de Vehículos */}
+      {/* Paso 1: Selección de Fechas */}
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">1. Seleccionar Vehículo</h2>
-        <div className="mb-4">
-          <select className="p-2 border rounded" value={filterBrand} onChange={(e) => filterVehicles(e.target.value)}>
-            <option value="Todas">Todas las marcas</option>
-            {Array.from(new Set(vehicles.map((v) => v.marca))).map((marca) => (
-              <option key={marca} value={marca}>
-                {marca}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {filteredVehicles.map((vehicle) => (
-            <div key={vehicle._id} className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedVehicle?._id === vehicle._id ? "border-blue-500 bg-blue-50" : "hover:border-gray-400"}`} onClick={() => setSelectedVehicle(vehicle)}>
-              <img src={vehicle.imagen} alt={vehicle.nombre} className="w-full h-48 object-cover rounded mb-2" />
-              <h3 className="font-semibold">{vehicle.nombre}</h3>
-              <p className="text-gray-600">
-                {vehicle.marca} - {vehicle.modelo}
-              </p>
-              <p className="text-green-600 font-semibold">${vehicle.tarifas[0]?.tarifa}/día</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Sección de Cliente */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">2. Seleccionar Cliente</h2>
-        <div className="flex gap-2 mb-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-            <input type="text" placeholder="Buscar cliente por cédula o nombre..." className="pl-10 p-2 border rounded w-full" value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} />
+        <h2 className="text-2xl font-semibold mb-4">1. Seleccionar Fechas</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="fechaInicio" className="block mb-2">Fecha de Inicio</label>
+            <input
+              type="date"
+              id="fechaInicio"
+              className="p-2 border rounded w-full"
+              value={fechaInicio}
+              onChange={(e) => {
+                const newFechaInicio = e.target.value;
+                setFechaInicio(newFechaInicio);
+                if (fechaFin && new Date(newFechaInicio) > new Date(fechaFin)) {
+                  setFechaFin("");
+                }
+              }}
+              min={new Date().toISOString().split("T")[0]}
+            />
           </div>
-          <button onClick={() => setShowCustomerModal(true)} className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-green-600">
-            <UserPlus size={20} />
-            Nuevo Cliente
-          </button>
-        </div>
-
-        <div className="max-h-60 overflow-y-auto border rounded">
-          {customers
-            .filter((c) => c.cedula.includes(customerSearch) || c.nombre.toLowerCase().includes(customerSearch.toLowerCase()) || c.apellido.toLowerCase().includes(customerSearch.toLowerCase()))
-            .map((customer) => (
-              <div key={customer._id} className={`p-3 border-b cursor-pointer ${selectedCustomer?._id === customer._id ? "bg-blue-50" : "hover:bg-gray-50"}`} onClick={() => setSelectedCustomer(customer)}>
-                <p className="font-semibold">
-                  {customer.nombre} {customer.apellido}
-                </p>
-                <p className="text-sm text-gray-600">Cédula: {customer.cedula}</p>
-                <p className="text-sm text-gray-600">{customer.email}</p>
-              </div>
-            ))}
+          <div>
+            <label htmlFor="fechaFin" className="block mb-2">Fecha de Fin</label>
+            <input
+              type="date"
+              id="fechaFin"
+              className="p-2 border rounded w-full"
+              value={fechaFin}
+              onChange={(e) => {
+                const newFechaFin = e.target.value;
+                if (new Date(newFechaFin) >= new Date(fechaInicio)) {
+                  setFechaFin(newFechaFin);
+                } else {
+                  toast.error("La fecha de fin debe ser posterior a la fecha de inicio.");
+                  setFechaFin("");
+                }
+              }}
+              min={fechaInicio}
+              disabled={!fechaInicio}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Sección de Fechas */}
-      {selectedVehicle && selectedCustomer && (
+      {/* Paso 2: Selección de Vehículo */}
+      {fechaInicio && fechaFin && (
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">3. Seleccionar Fechas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block mb-2">Fecha de Inicio</label>
+          <h2 className="text-2xl font-semibold mb-4">2. Seleccionar Vehículo</h2>
+          {isLoadingVehicles ? (
+            <p>Cargando vehículos...</p>
+          ) : filteredVehicles.length === 0 ? (
+            <p>No hay vehículos disponibles.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {filteredVehicles.map((vehicle) => (
+                <div
+                  key={vehicle._id}
+                  className={`border rounded-lg p-4 cursor-pointer ${
+                    selectedVehicle?._id === vehicle._id ? "border-blue-500" : "hover:border-gray-400"
+                  }`}
+                  onClick={() => setSelectedVehicle(vehicle)}
+                >
+                  <img src={vehicle.imagen} alt={vehicle.nombre} className="w-full h-48 object-cover mb-2" />
+                  <h3 className="font-semibold">{vehicle.nombre}</h3>
+                  <p className="text-gray-600">{vehicle.marca} - {vehicle.modelo}</p>
+                  <p className="text-green-600 font-semibold">${vehicle.tarifas[0]?.tarifa}/día</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
+      {/* Paso 3: Selección de Cliente */}
+      {selectedVehicle && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">3. Seleccionar Cliente</h2>
+          <div className="flex gap-2 mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
               <input
-                type="date"
-                className="p-2 border rounded w-full"
-                value={fechaInicio}
-                onChange={(e) => {
-                  setFechaInicio(e.target.value);
-                  if (
-                    fechaFin &&
-                    new Date(e.target.value) > new Date(fechaFin)
-                  ) {
-                    setFechaFin(""); // Resetea la fecha de fin si ya no es válida
-                  }
-                }}
-                min={new Date().toISOString().split("T")[0]}
+                type="text"
+                placeholder="Buscar cliente..."
+                className="pl-10 p-2 border rounded w-full"
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
               />
             </div>
-            <div>
-              <label className="block mb-2">Fecha de Fin</label>
-              <input
-                type="date"
-                className="p-2 border rounded w-full"
-                value={fechaFin}
-                onChange={(e) => {
-                  if (new Date(e.target.value) >= new Date(fechaInicio)) {
-                    setFechaFin(e.target.value);
-                  } else {
-                    alert(
-                      "La fecha de fin no puede ser anterior a la fecha de inicio."
-                    );
-                    setFechaFin(""); // Resetea la fecha de fin si es inválida
-                  }
-                }}
-                min={fechaInicio}
-                disabled={!fechaInicio} // Desactiva el campo si no hay fecha de inicio
-              />
-
-            </div>
+            <button
+              onClick={() => setShowCustomerModal(true)}
+              className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-green-600"
+            >
+              <UserPlus size={20} />
+              Nuevo Cliente
+            </button>
           </div>
 
-          {fechaInicio && fechaFin && (
-            <div className="mt-4">
-              <p className="text-xl font-bold">Total: ${calculateTotal()}</p>
+          <div className="max-h-60 overflow-y-auto border rounded">
+            {customers
+              .filter(
+                (c) =>
+                  c.cedula.includes(customerSearch) ||
+                  c.nombre.toLowerCase().includes(customerSearch.toLowerCase()) ||
+                  c.apellido.toLowerCase().includes(customerSearch.toLowerCase())
+              )
+              .map((customer) => (
+                <div
+                  key={customer._id}
+                  className={`p-3 border-b cursor-pointer ${
+                    selectedCustomer?._id === customer._id ? "bg-blue-50" : "hover:bg-gray-50"
+                  }`}
+                  onClick={() => setSelectedCustomer(customer)}
+                >
+                  <p className="font-semibold">{customer.nombre} {customer.apellido}</p>
+                  <p className="text-sm text-gray-600">Cédula: {customer.cedula}</p>
+                  <p className="text-sm text-gray-600">{customer.email}</p>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* Paso 4: Confirmar y Crear Alquiler */}
+      {selectedVehicle && selectedCustomer && (
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">4. Confirmar Alquiler</h2>
+          <p className="text-xl font-bold">Total: ${calculateTotal()}</p>
 
               <button
                 onClick={() => {
@@ -339,88 +339,6 @@ const handleCreateRental = async (event: React.FormEvent) => {
 
                 Crear Alquiler
               </button>
-            </div>
-          )}
-        </div>
-      )}
-      {/* Modal de Nuevo Cliente */}
-      {showCustomerModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Nuevo Cliente</h3>
-              <button onClick={() => setShowCustomerModal(false)}>
-                <X size={24} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateCustomer}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-1">Cédula</label>
-                  <input type="text" className="w-full p-2 border rounded" value={newCustomer.cedula} onChange={(e) => setNewCustomer({ ...newCustomer, cedula: e.target.value })} required />
-                </div>
-                <div>
-                  <label className="block mb-1">Nombre</label>
-                  <input type="text" className="w-full p-2 border rounded" value={newCustomer.nombre} onChange={(e) => setNewCustomer({ ...newCustomer, nombre: e.target.value })} required />
-                </div>
-                <div>
-                  <label className="block mb-1">Apellido</label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border rounded"
-                    value={newCustomer.apellido}
-                    onChange={(e) =>
-                      setNewCustomer({
-                        ...newCustomer,
-                        apellido: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">Dirección</label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border rounded"
-                    value={newCustomer.direccion}
-                    onChange={(e) =>
-                      setNewCustomer({
-                        ...newCustomer,
-                        direccion: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">Teléfono</label>
-                  <input
-                    type="tel"
-                    className="w-full p-2 border rounded"
-                    value={newCustomer.telefono}
-                    onChange={(e) =>
-                      setNewCustomer({
-                        ...newCustomer,
-                        telefono: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">Email</label>
-                  <input type="email" className="w-full p-2 border rounded" value={newCustomer.email} onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })} required />
-                </div>
-              </div>
-              <div className="mt-6">
-                <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
-                  Crear Cliente
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
       )}
       {/* Modal de Confirmación de Alquiler */}
@@ -477,6 +395,8 @@ const handleCreateRental = async (event: React.FormEvent) => {
           </div>
         </div>
       )}
+    
     </div>
+    
   );
 }
