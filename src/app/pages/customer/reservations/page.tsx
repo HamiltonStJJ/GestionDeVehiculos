@@ -65,7 +65,7 @@ export default function Reservations() {
                 <p>Fecha de fin: {new Date(new Date(rental.fechaFin).setDate(new Date(rental.fechaFin).getDate() + 1)).toLocaleDateString()}</p>
                 <p>Fecha de devolución: {rental.fechaDevolucion ? new Date(rental.fechaDevolucion).toLocaleDateString() : "N/A"}</p>
                 <p>Estado: {rental.estado}</p>
-                <p>Penalización por Tiempo: ${rental.penalizacion}</p>
+                <p>Penalización por Tiempo: ${rental.penalizacion || 0}</p>
                 <p>Penalización por daños: ${rental.penalizacionPorDanios}</p>
                 <p>Total: ${rental.total + rental.penalizacionPorDanios}</p>
               </div>
