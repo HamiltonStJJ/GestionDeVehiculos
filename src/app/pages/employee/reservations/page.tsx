@@ -28,12 +28,14 @@ const ReservationsPage = () => {
   const [selectedRental, setSelectedRental] = useState<{ _id: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [piezasRevisadas, setPiezasRevisadas] = useState([
-    { pieza: "Motor", estado: "Correcto" },
-    { pieza: "Parabrisas", estado: "Correcto" },
-    { pieza: "Llantas", estado: "Correcto" },
-    { pieza: "Frenos", estado: "Correcto" },
-    { pieza: "Carrocería", estado: "Correcto" },
-  ]);
+  { pieza: "Motor", estado: "Correcto" },
+  { pieza: "Parabrisas", estado: "Correcto" },
+  { pieza: "Puertas", estado: "Correcto" },
+  { pieza: "Llantas", estado: "Correcto" },
+  { pieza: "Faros Delanteros", estado: "Correcto" },
+  { pieza: "Faros traseros", estado: "Correcto" },
+]);
+
 
   useEffect(() => {
     fetchRentals();
@@ -97,11 +99,15 @@ const ReservationsPage = () => {
     setRentalToAuthorize(null);
   };
 
+ 
   const handleDevolucion = async () => {
-    if (!selectedRental) return;
+  if (!selectedRental) return;
 
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rentals/devolucion/${selectedRental._id}`, {
+  try {
+    // Primera solicitud PUT para procesar la devolución
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/rentals/devolucion/${selectedRental._id}`,
+      {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -110,21 +116,56 @@ const ReservationsPage = () => {
         body: JSON.stringify({
           piezasRevisadas: piezasRevisadas,
         }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        const rentalDetails = data.rentalDetails;
-        setDevolucionDetails(rentalDetails);
-        toast.success("Devolución procesada exitosamente. Se envió un correo al cliente con el enlace de pago.");
-        fetchRentals();
-      } else {
-        toast.error("Error al procesar la devolución");
       }
-    } catch (error) {
-      toast.error("Error de conexión");
+    );
+
+    const data = await response.json();
+    if (response.ok) {
+      const rentalDetails = data.rentalDetails;
+      setDevolucionDetails(rentalDetails);
+
+      // Segunda solicitud PUT para actualizar los campos específicos
+      const updateResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/rentals/${selectedRental._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            fechaDevolucion: rentalDetails.fechaDevolucion, 
+            penalizacionPorDias: rentalDetails.valorDias, 
+            penalizacionPorDanios: rentalDetails.valorDanios,
+            total: rentalDetails.total, 
+            piezasRevisadas: rentalDetails.piezasRevisadas, 
+          }),
+        }
+      );
+
+      if (updateResponse.ok) {
+        toast.success("Devolución procesada exitosamente. Se envió un correo al cliente con el enlace de pago.");
+        fetchRentals(); 
+        resetPiezasACorrecto(); 
+      } else {
+        toast.error("Error al actualizar los detalles de la devolución");
+      }
+    } else {
+      toast.error("Error al procesar la devolución");
     }
-  };
+  } catch (error) {
+    toast.error("Error de conexión");
+  }
+};
+
+  const resetPiezasACorrecto = () => {
+  setPiezasRevisadas((prevPiezas) =>
+    prevPiezas.map((pieza) => ({
+      ...pieza,
+      estado: "Correcto", 
+    }))
+  );
+};
 
   const handlePiezaEstadoChange = (index: number, estado: string) => {
     const newPiezas = [...piezasRevisadas];
