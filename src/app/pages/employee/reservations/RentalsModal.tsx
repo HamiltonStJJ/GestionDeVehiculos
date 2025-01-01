@@ -57,26 +57,27 @@ return (
                 Cancelar
               </motion.button>
 
-              <motion.button
+                <motion.button
                 whileHover={{ scale: isLoading ? 1 : 1.05 }}
                 whileTap={{ scale: isLoading ? 1 : 0.95 }}
                 onClick={handleConfirm}
                 disabled={isLoading}
                 className={`px-6 py-2 rounded-lg flex items-center justify-center ${
                   isLoading
-                    ? 'bg-green-500 cursor-not-allowed'
-                    : 'bg-green-600 hover:bg-green-700'
+                  ? 'bg-green-500 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700'
                 } text-white transition-colors duration-200`}
-              >
+                style={{ minWidth: '120px' }} // Ensure the button has a minimum width
+                >
                 {isLoading ? (
                   <span className="loading loading-dots loading-mg" />
                 ) : (
                   <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Confirmar
+                  <Check className="w-4 h-4 mr-2" />
+                  Confirmar
                   </>
                 )}
-              </motion.button>
+                </motion.button>
             </div>
           </motion.div>
         </motion.div>
