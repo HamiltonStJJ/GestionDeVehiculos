@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { toast } from "react-toastify";
 
 interface ReportData {
   totales: {
@@ -42,7 +43,7 @@ const ReportsDashboard = () => {
       const data = await response.json();
       setReportData(data);
     } catch (error) {
-      console.error("Error fetching report data:", error);
+      toast.error("Error al obtener los datos del reporte");
     }
     setLoading(false);
   };

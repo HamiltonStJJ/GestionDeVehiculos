@@ -18,6 +18,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface SidebarProps {
   role: "admin" | "customer" | "employee";
@@ -40,8 +41,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
       if (response.ok) {
         localStorage.removeItem("userData"); 
         Router.push("/pages/auth/Login");
+        toast.success("Sesión cerrada correctamente");
       } else {
-        console.error("Error al cerrar sesión");
+        localStorage.removeItem("userData"); 
+        Router.push("/pages/auth/Login");
       }
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
