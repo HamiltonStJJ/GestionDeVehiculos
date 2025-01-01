@@ -134,18 +134,19 @@ const ReservationsPage = () => {
           },
           credentials: "include",
           body: JSON.stringify({
-            fechaDevolucion: rentalDetails.fechaDevolucion, // Usar la fecha de devolución de la respuesta
-            penalizacionPorDias: rentalDetails.valorDias, // Usar el valor de días de la respuesta
-            penalizacionPorDanios: rentalDetails.valorDanios, // Usar el valor de daños de la respuesta
-            total: rentalDetails.total, // Usar el total de la respuesta
-            piezasRevisadas: rentalDetails.piezasRevisadas, // Usar el array de piezas revisadas de la respuesta
+            fechaDevolucion: rentalDetails.fechaDevolucion, 
+            penalizacionPorDias: rentalDetails.valorDias, 
+            penalizacionPorDanios: rentalDetails.valorDanios,
+            total: rentalDetails.total, 
+            piezasRevisadas: rentalDetails.piezasRevisadas, 
           }),
         }
       );
 
       if (updateResponse.ok) {
         toast.success("Devolución procesada exitosamente. Se envió un correo al cliente con el enlace de pago.");
-        fetchRentals(); // Actualizar la lista de rentals
+        fetchRentals(); 
+        resetPiezasACorrecto(); 
       } else {
         toast.error("Error al actualizar los detalles de la devolución");
       }
@@ -155,6 +156,15 @@ const ReservationsPage = () => {
   } catch (error) {
     toast.error("Error de conexión");
   }
+};
+
+  const resetPiezasACorrecto = () => {
+  setPiezasRevisadas((prevPiezas) =>
+    prevPiezas.map((pieza) => ({
+      ...pieza,
+      estado: "Correcto", 
+    }))
+  );
 };
 
   const handlePiezaEstadoChange = (index: number, estado: string) => {
