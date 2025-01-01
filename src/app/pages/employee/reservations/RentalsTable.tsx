@@ -131,11 +131,11 @@ const RentalsTable: React.FC<RentalsTableProps> = ({
                   <div className="flex flex-col text-sm text-gray-900">
                     <span className="font-medium">Inicio:</span>
                     <span>
-                      {new Date(rental.fechaInicio).toLocaleDateString()}
+                        {new Date(new Date(rental.fechaInicio).setDate(new Date(rental.fechaInicio).getDate() + 1)).toLocaleDateString()}
                     </span>
                     <span className="font-medium mt-1">Fin:</span>
                     <span>
-                      {new Date(rental.fechaFin).toLocaleDateString()}
+                        {new Date(new Date(rental.fechaFin).setDate(new Date(rental.fechaFin).getDate() + 1)).toLocaleDateString()}
                     </span>
                   </div>
                 </td>

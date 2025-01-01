@@ -36,7 +36,7 @@ export default function Reservations() {
     fetchRentals();
   }, []);
 
-  const filteredRentals = showInProgress ? rentals.filter((rental) => rental.estado === "En Curso") : rentals;
+  const filteredRentals = showInProgress ? rentals.filter((rental) => rental.estado.toLowerCase() === "en curso".toLowerCase()) : rentals;
 
   return (
     <div className="container mx-auto p-4">
@@ -61,8 +61,8 @@ export default function Reservations() {
                 <p>Año: {rental.auto.anio}</p>
                 <p>Color: {rental.auto.color}</p>
                 <p>Placa: {rental.auto.placa}</p>
-                <p>Fecha de inicio: {new Date(rental.fechaInicio).toLocaleDateString()}</p>
-                <p>Fecha de fin: {new Date(rental.fechaFin).toLocaleDateString()}</p>
+                <p>Fecha de inicio: {new Date(new Date(rental.fechaInicio).setDate(new Date(rental.fechaInicio).getDate() + 1)).toLocaleDateString()}</p>
+                <p>Fecha de fin: {new Date(new Date(rental.fechaFin).setDate(new Date(rental.fechaFin).getDate() + 1)).toLocaleDateString()}</p>
                 <p>Fecha de devolución: {rental.fechaDevolucion ? new Date(rental.fechaDevolucion).toLocaleDateString() : "N/A"}</p>
                 <p>Estado: {rental.estado}</p>
                 <p>Penalización por Tiempo: ${rental.penalizacion}</p>
