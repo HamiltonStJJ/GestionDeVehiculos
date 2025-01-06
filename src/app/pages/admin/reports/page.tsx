@@ -11,19 +11,191 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { toast } from "react-toastify";
+import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+
+// Estilos para el PDF
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'column',
+    backgroundColor: '#fff',
+    padding: 30
+  },
+  section: {
+    margin: 10,
+    padding: 10,
+    flexGrow: 1
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#201E43',
+    fontWeight: 'bold'
+  },
+  subtitle: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: '#134B70',
+    fontWeight: 'bold'
+  },
+  text: {
+    fontSize: 12,
+    marginBottom: 5
+  },
+  tableHeader: {
+    backgroundColor: '#f3f4f6',
+    flexDirection: 'row',
+    borderBottomColor: '#000',
+    borderBottomWidth: 1,
+    padding: 8
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomColor: '#e5e7eb',
+    borderBottomWidth: 1,
+    padding: 8
+  },
+  cell: {
+    flex: 1,
+    fontSize: 10
+  },
+  headerCell: {
+    flex: 1,
+    fontSize: 10,
+    fontWeight: 'bold'
+  },
+  period: {
+    fontSize: 14,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#4A628A'
+  },
+  divider: {
+    borderBottomColor: '#e5e7eb',
+    borderBottomWidth: 1,
+    marginVertical: 15
+  }
+});
+
+// Componente PDF mejorado
+const ReportPDF = ({ reportData, startDate, endDate }: { reportData: ReportData; startDate: string; endDate: string }) => {
+  // Función para formatear fechas
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.section}>
+          <Text style={styles.title}>Reporte de Alquileres</Text>
+          <Text style={styles.period}>
+            Período: {formatDate(startDate)} - {formatDate(endDate)}
+          </Text>
+          
+          <Text style={styles.subtitle}>Resumen General</Text>
+          <Text style={styles.text}>Total de Rentas: {reportData.totales.cantidadRentas}</Text>
+          <Text style={styles.text}>Rentas Finalizadas: {reportData.totales.rentasFinalizadas}</Text>
+          <Text style={styles.text}>Rentas Pendientes: {reportData.totales.rentasPendientes}</Text>
+          <Text style={styles.text}>Rentas Canceladas: {reportData.totales.rentasCanceladas}</Text>
+          
+          <View style={styles.divider} />
+          
+          <Text style={styles.subtitle}>Métricas Financieras</Text>
+          <Text style={styles.text}>Ingresos Totales: ${reportData.totales.ingresosTotales.toLocaleString()}</Text>
+          <Text style={styles.text}>Promedio por Renta: ${Math.round(reportData.totales.promedioIngresoPorRenta).toLocaleString()}</Text>
+          <Text style={styles.text}>Total Penalizaciones: ${reportData.totales.penalizacionesTotales.toLocaleString()}</Text>
+          <Text style={styles.text}>Días Totales Alquilados: {reportData.totales.diasTotalesAlquilados}</Text>
+          
+          <View style={styles.divider} />
+          
+          <Text style={styles.subtitle}>Detalle de Rentas</Text>
+          <View style={styles.tableHeader}>
+            <Text style={styles.headerCell}>Cliente</Text>
+            <Text style={styles.headerCell}>Vehículo</Text>
+            <Text style={styles.headerCell}>Estado</Text>
+            <Text style={styles.headerCell}>Subtotal</Text>
+            <Text style={styles.headerCell}>Penalización</Text>
+            <Text style={styles.headerCell}>Total</Text>
+          </View>
+          
+          {reportData.rentas.map((renta) => (
+            <View style={styles.tableRow} key={renta._id}>
+              <Text style={styles.cell}>{renta.cliente}</Text>
+              <Text style={styles.cell}>{renta.auto}</Text>
+              <Text style={styles.cell}>{renta.estado}</Text>
+              <Text style={styles.cell}>${renta.subtotal}</Text>
+              <Text style={styles.cell}>${renta.penalizacion}</Text>
+              <Text style={styles.cell}>${renta.total}</Text>
+            </View>
+          ))}
+        </View>
+      </Page>
+    </Document>
+  );
+};
+// Agregar esta función dentro del componente ReportsDashboard
+const generatePDF = async (reportData: ReportData, startDate: string, endDate: string) => {
+  if (!reportData) return;
+
+  try {
+    const blob = await pdf(
+      <ReportPDF 
+        reportData={reportData} 
+        startDate={startDate} 
+        endDate={endDate} 
+      />
+    ).toBlob();
+    
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `reporte-alquileres-${startDate}-${endDate}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast.success("PDF generado exitosamente");
+  } catch (error) {
+    toast.error("Error al generar el PDF");
+    console.error("Error generando PDF:", error);
+  }
+};
+interface Renta {
+  _id: string;
+  cliente: string;
+  auto: string;
+  fechaInicio: string;
+  fechaFin: string;
+  estado: string;
+  diasAlquilado: number;
+  subtotal: number;
+  penalizacion: number;
+  total: number;
+}
 
 interface ReportData {
+  rangoFechas: {
+    $gte: string;
+    $lte: string;
+  };
+  rentas: Renta[];
   totales: {
     cantidadRentas: number;
     rentasPendientes: number;
     rentasFinalizadas: number;
+    rentasCanceladas: number;
     ingresosTotales: number;
     promedioIngresoPorRenta: number;
     penalizacionesTotales: number;
     diasTotalesAlquilados: number;
   };
 }
-
 const ReportsDashboard = () => {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [dateRange, setDateRange] = useState("month");
@@ -104,11 +276,34 @@ const ReportsDashboard = () => {
     ];
   };
 
-  return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      <div className="flex justify-between items-center mb-6">
+return (
+  <div className="p-8 max-w-7xl mx-auto space-y-8">
+    <div className="flex justify-between items-center mb-6">
+      <div className="flex items-center gap-4">
         <h1 className="text-3xl font-bold">Reportes de Alquiler</h1>
-        <div className="flex items-center gap-4">
+        <button
+          onClick={() => reportData && generatePDF(reportData, startDate, endDate)}
+          className="btn btn-primary"
+          disabled={!reportData || loading}
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-5 w-5 mr-2" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
+            />
+          </svg>
+          Descargar PDF
+        </button>
+      </div>
+      <div className="flex items-center gap-4">
           <select
             className="select select-bordered w-full max-w-xs"
             value={dateRange}
