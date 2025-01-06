@@ -71,11 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/pages/admin/reports",
             icon: <FileText size={20} />,
           },
-          {
-            name: "Configuración",
-            href: "/admin/settings",
-            icon: <Settings size={20} />,
-          },
+         
         ];
       case "employee":
         return [
@@ -89,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/pages/employee/reservations",
             icon: <Calendar size={20} />,
           },
-          {
+         /* {
             name: "Registrar Mantenimiento",
             href: "/pages/employee/maintenance",
             icon: <Wrench size={20} />,
@@ -99,6 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/pages/employee/inspections",
             icon: <ClipboardCheck size={20} />,
           },
+          */
         ];
       case "customer":
         return [
@@ -112,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/pages/customer/reservations",
             icon: <Calendar size={20} />,
           },
-          {
+         /* {
             name: "Perfil",
             href: "/pages/customer/profile",
             icon: <UserCircle size={20} />,
@@ -122,6 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/customer/help",
             icon: <HelpCircle size={20} />,
           },
+          */
         ];
     }
   };
