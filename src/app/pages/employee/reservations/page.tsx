@@ -1,7 +1,9 @@
+
 "use client";
+import { DevolutionDetails } from "./RentalsModal";
 import { ConfirmationModal, DevolutionModal } from "./RentalsModal";
 import React, { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+
 import { toast } from "react-toastify";
 import RentalsTable from "./RentalsTable";
 
@@ -23,7 +25,9 @@ const ReservationsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [rentalToAuthorize, setRentalToAuthorize] = useState<string | null>(null);
-  const [devolucionDetails, setDevolucionDetails] = useState<any>(null);
+
+
+  const [devolucionDetails, setDevolucionDetails] = useState<DevolutionDetails | null>(null);
   const [isDevolucionModalOpen, setIsDevolucionModalOpen] = useState(false);
   const [selectedRental, setSelectedRental] = useState<{ _id: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,6 +68,7 @@ const ReservationsPage = () => {
         setRentals(normalizedData);
       }
     } catch (error) {
+      console.error("Error fetching rentals:", error);
       toast.error("Error al cargar las reservaciones");
     }
   };
@@ -93,6 +98,7 @@ const ReservationsPage = () => {
         toast.error("Error al autorizar la reservación");
       }
     } catch (error) {
+      console.error("Error autorizando la reservación:", error);
       toast.error("Error de conexión");
     }
     setShowConfirmModal(false);
@@ -154,6 +160,7 @@ const ReservationsPage = () => {
       toast.error("Error al procesar la devolución");
     }
   } catch (error) {
+    console.error("Error procesando la devolución:", error);
     toast.error("Error de conexión");
   }
 };
@@ -173,7 +180,7 @@ const ReservationsPage = () => {
     setPiezasRevisadas(newPiezas);
   };
 
-  const filteredRentals = rentals.filter((rental) => rental.cliente?.email?.toLowerCase().includes(searchTerm.toLowerCase()) || rental.auto?.placa?.toLowerCase().includes(searchTerm.toLowerCase()));
+//  const filteredRentals = rentals.filter((rental) => rental.cliente?.email?.toLowerCase().includes(searchTerm.toLowerCase()) || rental.auto?.placa?.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="container mx-auto p-4">
@@ -230,7 +237,7 @@ const ReservationsPage = () => {
       <ConfirmationModal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)} onConfirm={confirmAutorizar} />
 
       <DevolutionModal
-        details={devolucionDetails}
+        details={devolucionDetails || undefined}
         onClose={() => {
           setDevolucionDetails(null);
           setIsDevolucionModalOpen(false);

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Pencil, Trash2, UserPlus } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface User {
   _id: string;
@@ -30,7 +30,7 @@ const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const [formData, setFormData] = useState<FormData>({

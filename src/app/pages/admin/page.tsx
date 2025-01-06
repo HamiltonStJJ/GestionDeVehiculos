@@ -1,9 +1,9 @@
 "use client";
 import { toast } from "react-toastify";
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
-import TarifaModal from "./tarifaCRUD";
+
 import { useRouter } from "next/navigation";
-import Sidebar from "@/components/SideBar";
+
 import ImageUploader from "@/components/ImageUploader";
 
 interface Tarifa {
@@ -95,7 +95,7 @@ const FormInput = ({
     </div>
   );
 };
-const TarifaSelect = ({ tarifas, selectedTarifas, onChange, id }: { tarifas: Tarifa[]; selectedTarifas: string[]; onChange: (selectedIds: string[]) => void; id?: string }) => {
+const TarifaSelect = ({ tarifas, selectedTarifas, onChange }: { tarifas: Tarifa[]; selectedTarifas: string[]; onChange: (selectedIds: string[]) => void; id?: string }) => {
   const handleTarifaChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedOptions = Array.from(e.target.selectedOptions).map((option) => option.value);
     onChange(selectedOptions);
@@ -152,7 +152,7 @@ const VehiclePage = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [availableTarifas, setAvailableTarifas] = useState<Tarifa[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isTarifaModalOpen, setIsTarifaModalOpen] = useState(false);
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const [formData, setFormData] = useState<FormData>({

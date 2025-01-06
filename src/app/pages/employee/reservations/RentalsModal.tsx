@@ -87,7 +87,7 @@ return (
 };
 
 // Devolution Details Modal
-interface DevolutionDetails {
+export interface DevolutionDetails {
   auto: {
     nombre: string;
     valor: number;
@@ -104,8 +104,9 @@ interface DevolutionDetails {
   fechaDevolucion: string;
 }
 
+
 interface DevolutionModalProps {
-  details: DevolutionDetails;
+  details?: DevolutionDetails;
   onClose: () => void;
 }
 const DevolutionModal: React.FC<DevolutionModalProps> = ({ details, onClose }) => {

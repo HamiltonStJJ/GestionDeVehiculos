@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import VehicleSkeleton from "@/components/VehicleSkeleton";
-import Sidebar from "@/components/SideBar";
+
 import { toast } from "react-toastify";
-import { Search, UserPlus, X } from "lucide-react";
+
 
 interface Vehicle {
   _id: string;
@@ -44,8 +42,8 @@ const Customer: React.FC = () => {
   const [filterAvailability, setFilterAvailability] = useState<string>("Todos");
   const [filterYear, setFilterYear] = useState<number | "Todos">("Todos");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
-  const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const [, setIsSidebarOpen] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL;

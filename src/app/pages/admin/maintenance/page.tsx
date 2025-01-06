@@ -1,8 +1,8 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+
+
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { Helmet } from "react-helmet";
 
 interface Maintenance {
   _id: string;
@@ -11,10 +11,8 @@ interface Maintenance {
 }
 
 const MaintenancePage = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const vehiclePlaca = searchParams.get("vehiclePlaca"); 
-  const vehicleId = searchParams.get("vehicleId"); 
+  const [vehiclePlaca, setVehiclePlaca] = useState<string | null>(null);
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
   const [formData, setFormData] = useState({ fecha: "", descripcion: "" });
   const [isEditing, setIsEditing] = useState<string | null>(null);
@@ -27,14 +25,22 @@ const MaintenancePage = () => {
     credentials: "include" as RequestCredentials,
   };
 
+  // Fetch vehicle data from query parameters
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const vehiclePlacaParam = searchParams.get("vehiclePlaca");
+    const vehicleIdParam = searchParams.get("vehicleId");
+
+    if (vehiclePlacaParam) setVehiclePlaca(vehiclePlacaParam);
+    if (vehicleIdParam) setVehicleId(vehicleIdParam);
+  }, []);
+
   // Fetch existing maintenances for the vehicle
   useEffect(() => {
     const fetchMaintenances = async () => {
-      console.log("VehiculoPlaca:", vehiclePlaca); // Ver si llega la placa
       if (!vehiclePlaca) return;
-  
+
       try {
-        console.log("Iniciando fetch para:", `${API_URL}/cars/maintenance/${vehiclePlaca}`);
         const response = await fetch(
           `${API_URL}/cars/maintenance/${vehiclePlaca}`,
           {
@@ -42,20 +48,17 @@ const MaintenancePage = () => {
             ...fetchConfig,
           }
         );
-  
-        console.log("Respuesta status:", response.status); // Ver el status de la respuesta
+
         if (!response.ok) throw new Error("Failed to fetch maintenances");
-        
+
         const data = await response.json();
-        console.log("Datos recibidos:", data); // Ver los datos que llegan
-        
         setMaintenances(data.mantenimientos);
       } catch (error) {
-        console.error("Error detallado:", error);
+        console.error(error);
         toast.error("Error fetching maintenances");
       }
     };
-  
+
     fetchMaintenances();
   }, [vehiclePlaca]);
 
@@ -84,8 +87,9 @@ const MaintenancePage = () => {
 
       if (!response.ok) throw new Error("Failed to save maintenance record");
 
-      const message = isEditing ? "Maintenance updated!" : "Maintenance added!";
-      toast.success(message);
+      toast.success(
+        isEditing ? "Maintenance updated!" : "Maintenance added!"
+      );
 
       // Refresh the list of maintenances
       const updatedResponse = await fetch(
@@ -96,17 +100,16 @@ const MaintenancePage = () => {
         }
       );
 
-      // En handleSubmit, actualiza esta parte:
       if (!updatedResponse.ok)
         throw new Error("Failed to fetch updated maintenances");
-      const updatedData = await updatedResponse.json();
-      setMaintenances(updatedData.mantenimientos); // Acceder al array dentro del objeto
 
-      // Reset the form and editing state
+      const updatedData = await updatedResponse.json();
+      setMaintenances(updatedData.mantenimientos);
+
       setFormData({ fecha: "", descripcion: "" });
       setIsEditing(null);
     } catch (error) {
-      console.error("Error saving maintenance:", error);
+      console.error(error);
       toast.error("Error saving maintenance");
     }
   };
@@ -124,12 +127,11 @@ const MaintenancePage = () => {
       );
 
       if (!response.ok) throw new Error("Failed to delete maintenance record");
-      toast.success("Maintenance deleted!");
 
-      // Update the list of maintenances
+      toast.success("Maintenance deleted!");
       setMaintenances((prev) => prev.filter((m) => m._id !== id));
     } catch (error) {
-      console.error("Error deleting maintenance:", error);
+      console.error(error);
       toast.error("Error deleting maintenance");
     }
   };
@@ -143,9 +145,7 @@ const MaintenancePage = () => {
   };
 
   return (
-    
     <div className="container mx-auto p-4">
-      
       <h1 className="text-3xl font-bold mb-6">
         Mantenimientos del Vehículo {vehiclePlaca}
       </h1>

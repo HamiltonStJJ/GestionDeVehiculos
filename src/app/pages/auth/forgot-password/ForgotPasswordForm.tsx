@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { requestPasswordReset } from "@/services/authService";
 import InputField from "@/components/InputField";
 import AuthButton from "@/components/AuthButton";
 
@@ -16,10 +15,11 @@ export default function ForgotPasswordForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await requestPasswordReset(email);
+      
       setSuccessMessage("Correo de recuperación enviado con éxito.");
       setError(null);
     } catch (err) {
+      console.error("Error al enviar el correo de recuperación:", err);
       setError("Error al enviar el correo de recuperación.");
     } finally {
       setIsLoading(false);

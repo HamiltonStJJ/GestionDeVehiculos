@@ -24,7 +24,7 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
 
     try {
       // Intentar subir la imagen al bucket de Supabase
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("Vehicles") // Asegúrate de usar el nombre correcto del bucket
         .upload(`public/${file.name}`, file, {
           cacheControl: "3600",
@@ -48,8 +48,8 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
       // Actualizar la vista previa y notificar al componente padre
       setPreviewUrl(publicUrl);
       onImageUpload(publicUrl);
-    } catch (err: any) {
-      console.error("Error al manejar la imagen:", err.message);
+    } catch (err) {
+      console.error("Error al manejar la imagen:", err);
       setError("Error al manejar la imagen.");
     } finally {
       setUploading(false);

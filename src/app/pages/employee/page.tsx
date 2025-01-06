@@ -26,10 +26,11 @@ interface Customer {
   nombre: string;
   apellido: string;
   email: string;
+  rol: string;
 }
 
 export default function EmployeeRentalPage() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
@@ -40,7 +41,7 @@ export default function EmployeeRentalPage() {
   const [fechaFin, setFechaFin] = useState<string>("");
 
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
-  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
+  const [, setIsLoadingCustomers] = useState(false);
 
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
@@ -127,7 +128,7 @@ export default function EmployeeRentalPage() {
         }
 
         const data = await response.json();
-        setCustomers(data.filter((c: any) => c.rol === "customer" || c.rol === "cliente"));
+        setCustomers(data.filter((c: Customer) => c.rol === "customer" || c.rol === "cliente"));
       } catch (error) {
         console.error("Error al cargar clientes:", error);
         toast.error("Error al cargar los clientes.");

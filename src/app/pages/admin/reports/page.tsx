@@ -215,6 +215,7 @@ const ReportsDashboard = () => {
       const data = await response.json();
       setReportData(data);
     } catch (error) {
+      console.error("Error fetching report data:", error);
       toast.error("Error al obtener los datos del reporte");
     }
     setLoading(false);
@@ -224,8 +225,8 @@ const ReportsDashboard = () => {
     const value = e.target.value;
     setDateRange(value);
     const today = new Date();
-    let start = new Date();
-    let end = new Date();
+    const start = new Date();
+    const end = new Date();
 
     switch (value) {
       case "week":
@@ -250,7 +251,7 @@ const ReportsDashboard = () => {
   useEffect(() => {
     // Establecer fechas del último mes al montar
     const today = new Date();
-    let start = new Date();
+    const start = new Date();
     start.setMonth(today.getMonth() - 1);
 
     setDateRange("month");

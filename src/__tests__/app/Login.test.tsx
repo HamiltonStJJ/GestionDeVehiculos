@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen,  } from '@testing-library/react';
 import LoginPage from '@/app/pages/auth/Login/page';
 import { useRouter } from 'next/navigation';
 
@@ -7,10 +7,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('LoginPage', () => {
-  const mockRouter = {
-    push: jest.fn(),
-    
-  };
+ 
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({
       push: jest.fn(),
