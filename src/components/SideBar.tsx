@@ -18,6 +18,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface SidebarProps {
   role: "admin" | "customer" | "employee";
@@ -40,8 +41,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
       if (response.ok) {
         localStorage.removeItem("userData"); 
         Router.push("/pages/auth/Login");
+        toast.success("Sesión cerrada correctamente");
       } else {
-        console.error("Error al cerrar sesión");
+        localStorage.removeItem("userData"); 
+        Router.push("/pages/auth/Login");
       }
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
@@ -68,11 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/pages/admin/reports",
             icon: <FileText size={20} />,
           },
-          {
-            name: "Configuración",
-            href: "/admin/settings",
-            icon: <Settings size={20} />,
-          },
+         
         ];
       case "employee":
         return [
@@ -86,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/pages/employee/reservations",
             icon: <Calendar size={20} />,
           },
-          {
+         /* {
             name: "Registrar Mantenimiento",
             href: "/pages/employee/maintenance",
             icon: <Wrench size={20} />,
@@ -96,6 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/pages/employee/inspections",
             icon: <ClipboardCheck size={20} />,
           },
+          */
         ];
       case "customer":
         return [
@@ -109,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/pages/customer/reservations",
             icon: <Calendar size={20} />,
           },
-          {
+         /* {
             name: "Perfil",
             href: "/pages/customer/profile",
             icon: <UserCircle size={20} />,
@@ -119,6 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             href: "/customer/help",
             icon: <HelpCircle size={20} />,
           },
+          */
         ];
     }
   };
