@@ -14,6 +14,12 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  daisyui: {
+    themes: ["light"], // Esto fuerza el tema claro
+    darkTheme: "light", // Esto previene el modo oscuro
+  },
+  plugins: [
+    require('daisyui'),
+  ],
 };
 export default config;
