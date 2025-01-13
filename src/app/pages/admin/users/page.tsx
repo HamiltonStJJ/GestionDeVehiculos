@@ -189,7 +189,7 @@ const handleDelete = async (id: string) => {
                     <Pencil size={18} />
                   </button>
                   <button
-                    onClick={() => handleDelete(user._id)}
+                    onClick={() => handleDelete(user.cedula)}
                     className="text-red-600 hover:text-red-900"
                   >
                     <Trash2 size={18} />
@@ -300,7 +300,7 @@ const handleDelete = async (id: string) => {
                       className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
                       <option value="activo">Activo</option>
-                      <option value="inactivo">Inactivo</option>
+                      <option value="desactivado">Desactivado</option>
                     </select>
                   </div>
                 </div>
