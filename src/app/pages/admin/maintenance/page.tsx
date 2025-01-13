@@ -69,29 +69,37 @@ const MaintenancePage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!vehiclePlaca) return;
-
+    
     try {
       const url = isEditing
-        ? `${API_URL}/cars/maintenance/${vehicleId}`
+        ? `${API_URL}/cars/maintenance/${isEditing}`
         : `${API_URL}/cars/maintenance/${vehiclePlaca}`;
-
+      
       const method = isEditing ? "PUT" : "POST";
+      
       const response = await fetch(url, {
         method,
-        body: JSON.stringify(formData),
-        ...fetchConfig,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          fecha: formData.fecha,
+          descripcion: formData.descripcion
+        })
       });
 
-      if (!response.ok) throw new Error("Failed to save maintenance record");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save maintenance record");
+      }
 
       toast.success(
-        isEditing ? "Maintenance updated!" : "Maintenance added!"
-      );
-
-      // Refresh the list of maintenances
+        isEditing ? "Mantenimiento Editado!" : "Mantenimiento Añadido!"
+      );      // Refresh the list of maintenances
       const updatedResponse = await fetch(
         `${API_URL}/cars/maintenance/${vehiclePlaca}`,
         {
@@ -119,7 +127,7 @@ const MaintenancePage = () => {
 
     try {
       const response = await fetch(
-        `${API_URL}/cars/maintenance/${vehiclePlaca}/${id}`,
+        `${API_URL}/cars/maintenance/${id}`,
         {
           method: "DELETE",
           ...fetchConfig,
@@ -128,11 +136,11 @@ const MaintenancePage = () => {
 
       if (!response.ok) throw new Error("Failed to delete maintenance record");
 
-      toast.success("Maintenance deleted!");
+      toast.success("Mantenimiento Eliminado!");
       setMaintenances((prev) => prev.filter((m) => m._id !== id));
     } catch (error) {
       console.error(error);
-      toast.error("Error deleting maintenance");
+      toast.error("Error Eliminando el Mantenimiento");
     }
   };
 
