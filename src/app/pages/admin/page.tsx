@@ -162,17 +162,35 @@ const brands = [...Object.keys(brandModels)];
 
   // Estados
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+   const [activeTab, setActiveTab] = useState<"activos" | "eliminados">("activos");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [availableTarifas, setAvailableTarifas] = useState<Tarifa[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState("");
-const [customBrand, setCustomBrand] = useState("");
+const [, setCustomBrand] = useState("");
 const [availableModels, setAvailableModels] = useState<string[]>([]);
-const [customModel, setCustomModel] = useState("");
+ const [searchTerm, setSearchTerm] = useState("");
+const [,setCustomModel] = useState("");
 
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const filteredVehicles = vehicles.filter((vehicle) =>
+    activeTab === "activos"
+      ? vehicle.estado !== "Eliminado"
+      : vehicle.estado === "Eliminado"
+  );
 
+  // Filtrar por búsqueda
+  const searchedVehicles = filteredVehicles.filter((vehicle) =>
+    `${vehicle.placa} ${vehicle.marca} ${vehicle.modelo}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
+  // Cambiar pestaña activa
+  const handleTabChange = (tab: "activos" | "eliminados") => {
+    setActiveTab(tab);
+  };
   const [formData, setFormData] = useState<FormData>({
     nombre: "",
     marca: "",
@@ -231,19 +249,6 @@ const handleModelChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>)
   }
 };
 
-const handleCustomBrandChange = (e: ChangeEvent<HTMLInputElement>) => {
-  const brand = e.target.value;
-  setCustomBrand(brand);
-  setFormData((prev) => ({ ...prev, marca: brand }));
-};
-
-const handleCustomModelChange = (e: ChangeEvent<HTMLInputElement>) => {
-  const model = e.target.value;
-  setCustomModel(model);
-  setFormData((prev) => ({ ...prev, modelo: model }));
-};
-
-
   // Fetch vehicles from API
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -255,7 +260,7 @@ const handleCustomModelChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (!response.ok) throw new Error("Failed to fetch vehicles");
         const data = await response.json();
         const filteredData = data.filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado");
-        setVehicles(filteredData);
+        setVehicles(data);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
       }
@@ -316,7 +321,10 @@ const handleChange = (
   
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    if(formData.imagen == ""){
+      toast.error("Por favor, sube una imagen del vehículo.");
+      return;
+    }
     try {
       // Prepare the body data
       const bodyData = {
@@ -369,7 +377,7 @@ const handleChange = (
       if (!updatedResponse.ok) throw new Error("Failed to fetch updated vehicles");
       const updatedVehicles = await updatedResponse.json();
       const filteredVehicles = updatedVehicles.filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado");
-      setVehicles(filteredVehicles);
+      setVehicles(updatedVehicles);
 
       // Reset state
       resetForm();
@@ -433,19 +441,52 @@ const handleChange = (
     });
   };
 
-  const handleDelete = async (placa: string) => {
-    try {
-      const response = await fetch(`${API_URL}/cars/${placa}`, {
-        method: "DELETE",
-        ...fetchConfig,
-      });
-      if (!response.ok) throw new Error("Failed to delete vehicle");
-      toast.success("Vehículo eliminado correctamente!");
-      setVehicles(vehicles.filter((vehicle) => vehicle.placa !== placa));
-    } catch (error) {
-      console.error("Error deleting vehicle:", error);
-    }
-  };
+ const handleDelete = async (placa: string) => {
+  try {
+    const response = await fetch(`${API_URL}/cars/${placa}`, {
+      method: "PUT", // Cambiamos a PUT para actualizar en lugar de eliminar
+      ...fetchConfig,
+      body: JSON.stringify({ estado: "Eliminado" }), // Cambiamos el estado a "Eliminado"
+    });
+    if (!response.ok) throw new Error("Failed to update vehicle state to Eliminado");
+
+    toast.success("Vehículo eliminado correctamente!");
+
+    // Actualizamos el estado localmente
+    setVehicles((prevVehicles) =>
+      prevVehicles.map((vehicle) =>
+        vehicle.placa === placa ? { ...vehicle, estado: "Eliminado" } : vehicle
+      )
+    );
+  } catch (error) {
+    console.error("Error deleting vehicle:", error);
+    toast.error("Error al eliminar el vehículo.");
+  }
+};
+
+const handleRestore = async (placa: string) => {
+  try {
+    const response = await fetch(`${API_URL}/cars/${placa}`, {
+      method: "PUT",
+      ...fetchConfig,
+      body: JSON.stringify({ estado: "Disponible" }), // Cambiamos el estado a "Disponible"
+    });
+    if (!response.ok) throw new Error("Failed to update vehicle state to Disponible");
+
+    toast.success("Vehículo restaurado correctamente!");
+
+    // Actualizamos el estado localmente
+    setVehicles((prevVehicles) =>
+      prevVehicles.map((vehicle) =>
+        vehicle.placa === placa ? { ...vehicle, estado: "Disponible" } : vehicle
+      )
+    );
+  } catch (error) {
+    console.error("Error restoring vehicle:", error);
+    toast.error("Error al restaurar el vehículo.");
+  }
+};
+ 
 
   return (
     <div className="container mx-auto p-4">
@@ -519,60 +560,135 @@ const handleChange = (
         </form>
       </Modal>
 
-      {/* Botón de Agregar Vehículo */}
-      <button id="addVehicle" onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4">
+     {/* Pestañas */}
+    <div className="flex justify-center mb-6">
+      <button
+        className={`px-4 py-2 rounded-t-lg ${
+          activeTab === "activos"
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200 text-gray-700"
+        }`}
+        onClick={() => handleTabChange("activos")}
+      >
+        Vehículos Activos
+      </button>
+      <button
+        className={`px-4 py-2 rounded-t-lg ml-2 ${
+          activeTab === "eliminados"
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200 text-gray-700"
+        }`}
+        onClick={() => handleTabChange("eliminados")}
+      >
+        Vehículos Eliminados
+      </button>
+    </div>
+
+    {/* Botón de Agregar Vehículo */}
+    {activeTab === "activos" && (
+      <button
+        id="addVehicle"
+        onClick={() => setIsModalOpen(true)}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
+      >
         Agregar Vehículo
       </button>
-      {/* Tabla de Vehículos */}
-      <div className="overflow-x-auto bg-white shadow-md rounded">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehículo</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Detalles</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+    )}
+
+    {/* Campo de búsqueda */}
+    <div>
+      <input
+        type="text"
+        placeholder="Buscar por placa, marca o modelo"
+        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </div>
+
+    {/* Tabla de Vehículos */}
+    <div className="overflow-x-auto bg-white shadow-md rounded mt-4">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehículo</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Detalles</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+            {activeTab === "activos" && (
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {vehicles.map((vehicle, index) => (
-              <tr key={vehicle._id || index}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{vehicle.nombre}</div>
-                  <div className="text-sm text-gray-500">
-                    {vehicle.marca} {vehicle.modelo}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">Placa: {vehicle.placa}</div>
-                  <div className="text-sm text-gray-500">Km: {vehicle.kilometraje}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${vehicle.estado === "Disponible" ? "bg-green-100 text-green-800" : vehicle.estado === "Alquilado" ? "bg-blue-100 text-blue-800" : "bg-red-100 text-red-800"}`}
-                  >
-                    {vehicle.estado}
-                  </span>
-                </td>
+            )}
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {searchedVehicles.map((vehicle, index) => (
+            <tr key={vehicle._id || index}>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm font-medium text-gray-900">{vehicle.nombre}</div>
+                <div className="text-sm text-gray-500">
+                  {vehicle.marca} {vehicle.modelo}
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">Placa: {vehicle.placa}</div>
+                <div className="text-sm text-gray-500">Km: {vehicle.kilometraje}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span
+                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                  ${vehicle.estado === "Disponible" ? "bg-green-100 text-green-800" : vehicle.estado === "Alquilado" ? "bg-blue-100 text-blue-800" : "bg-red-100 text-red-800"}`}
+                >
+                  {vehicle.estado}
+                </span>
+              </td>
+              {activeTab === "activos" && (
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button id="edit-button" onClick={() => handleEdit(vehicle)} className="text-indigo-600 hover:text-indigo-900 mr-4" type="button">
+                  <button
+                    id="edit-button"
+                    onClick={() => handleEdit(vehicle)}
+                    className="text-indigo-600 hover:text-indigo-900 mr-4"
+                    type="button"
+                  >
                     Editar
                   </button>
-                  <button id="delete-button" onClick={() => handleDelete(vehicle.placa)} className="text-red-600 hover:text-red-900" type="button">
+                  <button
+                    id="delete-button"
+                    onClick={() => handleDelete(vehicle.placa)}
+                    className="text-red-600 hover:text-red-900"
+                    type="button"
+                  >
                     Eliminar
                   </button>
-                  <button id="maintenance-button" onClick={() => router.push(`/pages/admin/maintenance?vehiclePlaca=${vehicle.placa}&vehicleId=${vehicle._id}`)} className="ml-2 text-yellow-600 hover:text-yellow-900" type="button">
+                  <button
+                    id="maintenance-button"
+                    onClick={() => router.push(`/pages/admin/maintenance?vehiclePlaca=${vehicle.placa}&vehicleId=${vehicle._id}`)}
+                    className="ml-2 text-yellow-600 hover:text-yellow-900"
+                    type="button"
+                  >
                     Mantenimiento
                   </button>
                 </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+              )}
+              {activeTab === "eliminados" && (
+  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+    <button
+      id="restore-button"
+      onClick={() => handleRestore(vehicle.placa)}
+      className="text-green-600 hover:text-green-900"
+      type="button"
+    >
+      Restaurar
+    </button>
+  </td>
+)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {searchedVehicles.length === 0 && (
+        <div className="text-center py-4 text-gray-500">No se encontraron resultados</div>
+      )}
     </div>
-  );
-};
-
-export default VehiclePage;
+  </div>
+);
+}
+export default VehiclePage; 
