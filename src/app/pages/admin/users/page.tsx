@@ -31,6 +31,9 @@ const UserManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const [formData, setFormData] = useState<FormData>({
@@ -60,6 +63,18 @@ const UserManagement = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+  const lowercasedTerm = searchTerm.toLowerCase();
+  const filtered = users.filter(
+    (user) =>
+      user.cedula.toLowerCase().includes(lowercasedTerm) ||
+      user.nombre.toLowerCase().includes(lowercasedTerm) ||
+      user.email.toLowerCase().includes(lowercasedTerm)
+  );
+  setFilteredUsers(filtered);
+}, [searchTerm, users]);
+
 
   useEffect(() => {
     fetchUsers();
@@ -145,7 +160,16 @@ const handleDelete = async (id: string) => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Gestión de Usuarios</h1>
-       
+       <div className="mb-4">
+  <input
+    type="text"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    placeholder="Buscar por cédula, nombre o correo"
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
       </div>
 
       {/* Table */}
@@ -162,7 +186,7 @@ const handleDelete = async (id: string) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">{user.cedula}</td>
                 <td className="px-6 py-4">{`${user.nombre} ${user.apellido}`}</td>
