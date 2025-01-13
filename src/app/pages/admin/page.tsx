@@ -259,7 +259,6 @@ const handleModelChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>)
         });
         if (!response.ok) throw new Error("Failed to fetch vehicles");
         const data = await response.json();
-        const filteredData = data.filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado");
         setVehicles(data);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
@@ -376,7 +375,6 @@ const handleChange = (
 
       if (!updatedResponse.ok) throw new Error("Failed to fetch updated vehicles");
       const updatedVehicles = await updatedResponse.json();
-      const filteredVehicles = updatedVehicles.filter((vehicle: Vehicle) => vehicle.estado !== "Eliminado");
       setVehicles(updatedVehicles);
 
       // Reset state

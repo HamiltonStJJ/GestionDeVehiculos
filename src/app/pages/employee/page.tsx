@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { Search, UserPlus, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 interface Vehicle {
   _id: string;
@@ -416,13 +416,13 @@ const handleCreateRental = async (event: React.FormEvent) => {
                 onChange={(e) => setCustomerSearch(e.target.value)}
               />
             </div>
-            <button
+           {/* <button
               onClick={() => setShowCustomerModal(true)}
               className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-green-600"
             >
               <UserPlus size={20} />
               Nuevo Cliente
-            </button>
+            </button>*/}
           </div>
 
           <div className="max-h-60 overflow-y-auto border rounded">

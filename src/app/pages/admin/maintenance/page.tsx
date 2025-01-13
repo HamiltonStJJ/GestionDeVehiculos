@@ -12,7 +12,7 @@ interface Maintenance {
 
 const MaintenancePage = () => {
   const [vehiclePlaca, setVehiclePlaca] = useState<string | null>(null);
-  const [vehicleId, setVehicleId] = useState<string | null>(null);
+  const [, setVehicleId] = useState<string | null>(null);
   const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
   const [formData, setFormData] = useState({ fecha: "", descripcion: "" });
   const [isEditing, setIsEditing] = useState<string | null>(null);
