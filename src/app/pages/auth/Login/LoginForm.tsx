@@ -10,7 +10,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -37,6 +37,7 @@ export default function LoginForm() {
         }
       }
     } catch (err) {
+      console.error("Error al iniciar sesión:", err);
       setError("Credenciales incorrectas");
     } finally {
       setIsLoading(false);

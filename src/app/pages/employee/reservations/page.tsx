@@ -1,7 +1,9 @@
+
 "use client";
+import { DevolutionDetails } from "./RentalsModal";
 import { ConfirmationModal, DevolutionModal } from "./RentalsModal";
 import React, { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+
 import { toast } from "react-toastify";
 import RentalsTable from "./RentalsTable";
 
@@ -19,11 +21,11 @@ const ReservationsPage = () => {
     estado: string;
   }
 
-  const [rentals, setRentals] = useState<Rental[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [rentalToAuthorize, setRentalToAuthorize] = useState<string | null>(null);
-  const [devolucionDetails, setDevolucionDetails] = useState<any>(null);
+
+
+  const [devolucionDetails, setDevolucionDetails] = useState<DevolutionDetails | null>(null);
   const [isDevolucionModalOpen, setIsDevolucionModalOpen] = useState(false);
   const [selectedRental, setSelectedRental] = useState<{ _id: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,23 +52,7 @@ const ReservationsPage = () => {
   };
 
 
-  const fetchRentals = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rentals`, {
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const normalizedData = data.map((rental: Rental) => ({
-          ...rental,
-          estado: rental.estado.toLowerCase(),
-        }));
-        setRentals(normalizedData);
-      }
-    } catch (error) {
-      toast.error("Error al cargar las reservaciones");
-    }
-  };
+
 
   const handleAutorizar = async (rentalId: string) => {
     setRentalToAuthorize(rentalId);
@@ -93,6 +79,7 @@ const ReservationsPage = () => {
         toast.error("Error al autorizar la reservación");
       }
     } catch (error) {
+      console.error("Error autorizando la reservación:", error);
       toast.error("Error de conexión");
     }
     setShowConfirmModal(false);
@@ -154,6 +141,7 @@ const ReservationsPage = () => {
       toast.error("Error al procesar la devolución");
     }
   } catch (error) {
+    console.error("Error procesando la devolución:", error);
     toast.error("Error de conexión");
   }
 };
@@ -173,22 +161,76 @@ const ReservationsPage = () => {
     setPiezasRevisadas(newPiezas);
   };
 
-  const filteredRentals = rentals.filter((rental) => rental.cliente?.email?.toLowerCase().includes(searchTerm.toLowerCase()) || rental.auto?.placa?.toLowerCase().includes(searchTerm.toLowerCase()));
+//  const filteredRentals = rentals.filter((rental) => rental.cliente?.email?.toLowerCase().includes(searchTerm.toLowerCase()) || rental.auto?.placa?.toLowerCase().includes(searchTerm.toLowerCase()));
+ const [rentals, setRentals] = useState<Rental[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("pendiente"); // Pestaña activa
+
+  useEffect(() => {
+    fetchRentals();
+  }, []);
+
+  const fetchRentals = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rentals`, {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const normalizedData = data.map((rental: Rental) => ({
+          ...rental,
+          estado: rental.estado.toLowerCase(),
+        }));
+        setRentals(normalizedData);
+      }
+    } catch (error) {
+      console.error("Error fetching rentals:", error);
+    }
+  };
+
+  // Filtrar reservaciones según la pestaña activa y el término de búsqueda
+  const filteredRentals = rentals.filter(
+    (rental) =>
+      rental.estado === activeTab &&
+      (rental.cliente?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        rental.auto?.placa?.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Gestión de Reservaciones</h1>
 
+      {/* Tabs para los estados */}
+      <div className="flex space-x-4 mb-4">
+        {["pendiente", "en curso", "finalizado"].map((tab) => (
+          <button
+            key={tab}
+            className={`px-4 py-2 rounded ${
+              activeTab === tab
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-600"
+            }`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </div>
+
+     
+
+      {/* Tabla de reservaciones filtradas */}
       <RentalsTable
-        rentals={rentals}
+        rentals={filteredRentals}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        onAuthorize={handleAutorizar}
+             onAuthorize={handleAutorizar}
         onDevolucion={(rental) => {
           setSelectedRental(rental);
           setIsDevolucionModalOpen(true);
         }}
-      />
+      /> 
+  
       {/* Modal de Devolución */}
       {isDevolucionModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
@@ -230,7 +272,7 @@ const ReservationsPage = () => {
       <ConfirmationModal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)} onConfirm={confirmAutorizar} />
 
       <DevolutionModal
-        details={devolucionDetails}
+        details={devolucionDetails || undefined}
         onClose={() => {
           setDevolucionDetails(null);
           setIsDevolucionModalOpen(false);

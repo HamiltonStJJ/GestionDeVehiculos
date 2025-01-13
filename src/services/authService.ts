@@ -1,22 +1,6 @@
 import { apiRequest } from "./apiClient";
 
-interface LoginResponse {
-  authentication: {
-    password: string;
-    salt: string;
-    isTemporaryPassword: boolean;
-    sessionToken: string;
-  };
-  _id: string;
-  nombre: string;
-  cedula: string;
-  apellido: string;
-  direccion: string;
-  telefono: string;
-  email: string;
-  rol: string;
-  estado: string;
-}
+
 
 export async function login(email: string, password: string) {
   try {

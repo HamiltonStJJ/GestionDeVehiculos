@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { login, register, verifyEmail } from "@/services/authService";
+import { login, register } from "@/services/authService";
 import InputField from "@/components/InputField";
 import AuthButton from "@/components/AuthButton";
 import { useRouter } from "next/navigation";
@@ -51,6 +51,7 @@ export default function RegisterForm() {
       setResendTimer(60); // Reiniciar temporizador
       setCanResend(false);
     } catch (err) {
+      console.error("Error al enviar el registro:", err);
       setError("Hubo un error al enviar el registro.");
     } finally {
       setIsLoading(false);
@@ -73,6 +74,7 @@ export default function RegisterForm() {
       setResendTimer(60); // Reinicia el temporizador
       setCanResend(false);
     } catch (err) {
+      console.error("Error al reenviar el código:", err);
       setError("No se pudo reenviar el código. Inténtalo más tarde.");
     } finally {
       setIsLoading(false);
@@ -84,16 +86,7 @@ export default function RegisterForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await verifyEmail({
-        cedula,
-        nombre,
-        apellido,
-        direccion,
-        telefono,
-        email,
-        password,
-        verificationCode,
-      });
+    
 
       const result = await login(email, password);
 
@@ -111,6 +104,7 @@ export default function RegisterForm() {
       }
       
     } catch (err) {
+      console.error("Error al iniciar sesión:", err);
       setError("Credenciales incorrectas");
     } finally {
       setIsLoading(false);

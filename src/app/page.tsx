@@ -56,6 +56,7 @@ export default function Home() {
       } catch (error) {
 
         // Si el token es inválido, elimina la cookie y redirige al login
+        console.error("Error al validar el token:", error);
         Cookies.remove("auth");
         localStorage.removeItem("userData");
         router.push("/pages/auth/Login");

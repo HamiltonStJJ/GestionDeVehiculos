@@ -1,7 +1,8 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { changePassword } from "@/services/authService";
 import { toast } from "react-hot-toast";
 
@@ -10,16 +11,28 @@ const ChangePasswordPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const userId = searchParams.get('userId');
+  const [, setUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!userId) {
-      router.push('/');
+useEffect(() => {
+    try {
+      // Obtener parámetros manualmente desde la URL
+      const searchParams = new URLSearchParams(window.location.search);
+      const userIdParam = searchParams.get("userId");
+
+      if (!userIdParam) {
+        throw new Error("No se proporcionó un ID de usuario");
+      }
+
+      setUserId(userIdParam);
+    } catch (error) {
+      console.error("Error al obtener parámetros:", error);
+      setError("Parámetro 'userId' no encontrado. Redirigiendo...");
+      toast.error("Parámetro 'userId' no encontrado.");
+      setTimeout(() => router.push("/"), 3000); // Redirigir después de mostrar el error
     }
-  }, [userId, router]);
+  }, [router]);
 
-  const handleSubmit = async (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     try {
@@ -29,6 +42,7 @@ const ChangePasswordPage: React.FC = () => {
         router.push("/");
       }, 2000);
     } catch (error) {
+      console.error("Error al cambiar la contraseña:", error);
       setError("Error al cambiar la contraseña");
       setLoading(false);
     }

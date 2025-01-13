@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Pencil, Trash2, UserPlus } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface User {
   _id: string;
@@ -30,7 +30,10 @@ const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const [formData, setFormData] = useState<FormData>({
@@ -60,6 +63,18 @@ const UserManagement = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+  const lowercasedTerm = searchTerm.toLowerCase();
+  const filtered = users.filter(
+    (user) =>
+      user.cedula.toLowerCase().includes(lowercasedTerm) ||
+      user.nombre.toLowerCase().includes(lowercasedTerm) ||
+      user.email.toLowerCase().includes(lowercasedTerm)
+  );
+  setFilteredUsers(filtered);
+}, [searchTerm, users]);
+
 
   useEffect(() => {
     fetchUsers();
@@ -145,7 +160,16 @@ const handleDelete = async (id: string) => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Gestión de Usuarios</h1>
-       
+       <div className="mb-4">
+  <input
+    type="text"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    placeholder="Buscar por cédula, nombre o correo"
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
       </div>
 
       {/* Table */}
@@ -162,7 +186,7 @@ const handleDelete = async (id: string) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">{user.cedula}</td>
                 <td className="px-6 py-4">{`${user.nombre} ${user.apellido}`}</td>
@@ -189,7 +213,7 @@ const handleDelete = async (id: string) => {
                     <Pencil size={18} />
                   </button>
                   <button
-                    onClick={() => handleDelete(user._id)}
+                    onClick={() => handleDelete(user.cedula)}
                     className="text-red-600 hover:text-red-900"
                   >
                     <Trash2 size={18} />
@@ -300,7 +324,7 @@ const handleDelete = async (id: string) => {
                       className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
                       <option value="activo">Activo</option>
-                      <option value="inactivo">Inactivo</option>
+                      <option value="desactivado">Desactivado</option>
                     </select>
                   </div>
                 </div>

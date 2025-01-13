@@ -7,15 +7,14 @@ import {
   LayoutDashboard,
   Users,
   FileText,
-  Settings,
+  
   Home,
   Calendar,
-  UserCircle,
-  HelpCircle,
+  
+  
   ChevronRight,
   Car,
-  ClipboardCheck,
-  Wrench,
+  
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";

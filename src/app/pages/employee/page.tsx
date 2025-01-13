@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { Search, UserPlus, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 interface Vehicle {
   _id: string;
@@ -26,6 +26,7 @@ interface Customer {
   nombre: string;
   apellido: string;
   email: string;
+  rol: string;
 }
 
 export default function EmployeeRentalPage() {
@@ -40,7 +41,7 @@ export default function EmployeeRentalPage() {
   const [fechaFin, setFechaFin] = useState<string>("");
 
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
-  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
+  const [, setIsLoadingCustomers] = useState(false);
 
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
@@ -48,6 +49,15 @@ export default function EmployeeRentalPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+const [brands, setBrands] = useState<string[]>([]);
+const [years, setYears] = useState<number[]>([]);
+const [colors, setColors] = useState<string[]>([]);
+const [marcaFilter, setMarcaFilter] = useState<string>("");
+const [anioFilter, setAnioFilter] = useState<number | null>(null);
+const [colorFilter, setColorFilter] = useState<string>("");
+
+
 
 
 
@@ -65,40 +75,52 @@ export default function EmployeeRentalPage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
   // Obtener vehículos disponibles basado en fechas
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      if (!fechaInicio || !fechaFin) return;
+ useEffect(() => {
+  const fetchVehicles = async () => {
+    if (!fechaInicio || !fechaFin) return;
 
-      setIsLoadingVehicles(true);
-      try {
-        const response = await fetch(
-          `${API_URL}/cars/estados?estado=Disponible&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Error al cargar los vehículos.");
+    setIsLoadingVehicles(true);
+    try {
+      const response = await fetch(
+        `${API_URL}/cars/estados?estado=Disponible&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
         }
+      );
 
-        const data = await response.json();
-        setVehicles(data);
-        setFilteredVehicles(data);
-      } catch (error) {
-        console.error(error);
-        toast.error("Error al cargar los vehículos.");
-      } finally {
-        setIsLoadingVehicles(false);
+      if (!response.ok) {
+        throw new Error("Error al cargar los vehículos.");
       }
-    };
 
-    fetchVehicles();
-  }, [fechaInicio, fechaFin]);
+      const data = await response.json();
+
+      // Extraer valores únicos
+      const uniqueBrands = Array.from(new Set(data.map((vehicle: Vehicle) => vehicle.marca)));
+      const uniqueYears = Array.from(new Set<number>(data.map((vehicle: Vehicle) => vehicle.anio))).sort(
+        (a, b) => b - a
+      );
+      const uniqueColors = Array.from(new Set(data.map((vehicle: Vehicle) => vehicle.color)));
+
+      setVehicles(data); // Guardar vehículos
+      setFilteredVehicles(data); // Establecer vehículos filtrados
+      setBrands(uniqueBrands as string[]); // Guardar marcas únicas
+      setYears(uniqueYears as number[]); // Guardar años únicos
+      setColors(uniqueColors as string[]); // Guardar colores únicos
+    } catch (error) {
+      console.error("Error al cargar los vehículos:", error);
+      toast.error("Error al cargar los vehículos.");
+    } finally {
+      setIsLoadingVehicles(false);
+    }
+  };
+
+  fetchVehicles();
+}, [fechaInicio, fechaFin]);
+  
 
    const handleConfirm = async () => {
     setIsLoading(true);
@@ -108,6 +130,8 @@ export default function EmployeeRentalPage() {
       setIsLoading(false);
     }
   };
+
+ 
 
   // Obtener clientes
   useEffect(() => {
@@ -127,7 +151,7 @@ export default function EmployeeRentalPage() {
         }
 
         const data = await response.json();
-        setCustomers(data.filter((c: any) => c.rol === "customer" || c.rol === "cliente"));
+        setCustomers(data.filter((c: Customer) => c.rol === "customer" || c.rol === "cliente"));
       } catch (error) {
         console.error("Error al cargar clientes:", error);
         toast.error("Error al cargar los clientes.");
@@ -160,6 +184,22 @@ export default function EmployeeRentalPage() {
       console.error("Error creating customer:", error);
     }
   };
+useEffect(() => {
+  const applyFilters = () => {
+    const filtered = vehicles.filter((vehicle) => {
+      return (
+        (searchTerm === "" || vehicle.nombre.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (marcaFilter === "" || vehicle.marca === marcaFilter) &&
+        (anioFilter === null || vehicle.anio === anioFilter) &&
+        (colorFilter === "" || vehicle.color.toLowerCase() === colorFilter.toLowerCase())
+      );
+    });
+
+    setFilteredVehicles(filtered);
+  };
+
+  applyFilters();
+}, [searchTerm, marcaFilter, anioFilter, colorFilter, vehicles]);
 
 
 
@@ -274,10 +314,60 @@ const handleCreateRental = async (event: React.FormEvent) => {
         </div>
       </div>
 
-      {/* Paso 2: Selección de Vehículo */}
-      {fechaInicio && fechaFin && (
+    {/* Paso 2: Filtros y Vehículos */}
+    {fechaInicio && fechaFin && (
+      <>
+        {/* Filtros */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold mb-4">2. Filtrar Vehículos</h2>
+          <input
+            type="text"
+            placeholder="Buscar por nombre"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="p-2 border rounded w-full mb-2"
+          />
+          <select
+            value={marcaFilter}
+            onChange={(e) => setMarcaFilter(e.target.value)}
+            className="p-2 border rounded w-full mb-2"
+          >
+            <option value="">Todas las marcas</option>
+            {brands.map((brand) => (
+              <option key={brand} value={brand}>
+                {brand}
+              </option>
+            ))}
+          </select>
+          <select
+            value={anioFilter !== null ? anioFilter : ""}
+            onChange={(e) => setAnioFilter(e.target.value ? parseInt(e.target.value) : null)}
+            className="p-2 border rounded w-full mb-2"
+          >
+            <option value="">Todos los años</option>
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+          <select
+            value={colorFilter}
+            onChange={(e) => setColorFilter(e.target.value)}
+            className="p-2 border rounded w-full mb-2"
+          >
+            <option value="">Todos los colores</option>
+            {colors.map((color) => (
+              <option key={color} value={color}>
+                {color}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Lista de Vehículos */}
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">2. Seleccionar Vehículo</h2>
+          <h2 className="text-2xl font-semibold mb-4">3. Seleccionar Vehículo</h2>
           {isLoadingVehicles ? (
             <p>Cargando vehículos...</p>
           ) : filteredVehicles.length === 0 ? (
@@ -288,25 +378,33 @@ const handleCreateRental = async (event: React.FormEvent) => {
                 <div
                   key={vehicle._id}
                   className={`border rounded-lg p-4 cursor-pointer ${
-                    selectedVehicle?._id === vehicle._id ? "border-blue-500" : "hover:border-gray-400"
+                    selectedVehicle?._id === vehicle._id
+                      ? "border-blue-500"
+                      : "hover:border-gray-400"
                   }`}
                   onClick={() => setSelectedVehicle(vehicle)}
                 >
-                  <img src={vehicle.imagen} alt={vehicle.nombre} className="w-full h-48 object-cover mb-2" />
+                  <img
+                    src={vehicle.imagen}
+                    alt={vehicle.nombre}
+                    className="w-full h-48 object-cover mb-2"
+                  />
                   <h3 className="font-semibold">{vehicle.nombre}</h3>
                   <p className="text-gray-600">{vehicle.marca} - {vehicle.modelo}</p>
-                  <p className="text-green-600 font-semibold">${vehicle.tarifas[0]?.tarifa}/día</p>
+                  <p className="text-green-600 font-semibold">
+                    ${vehicle.tarifas[0]?.tarifa}/día
+                  </p>
                 </div>
               ))}
             </div>
           )}
         </div>
-      )}
-
+      </>
+    )} 
       {/* Paso 3: Selección de Cliente */}
       {selectedVehicle && (
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">3. Seleccionar Cliente</h2>
+          <h2 className="text-2xl font-semibold mb-4">4. Seleccionar Cliente</h2>
           <div className="flex gap-2 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
@@ -318,13 +416,13 @@ const handleCreateRental = async (event: React.FormEvent) => {
                 onChange={(e) => setCustomerSearch(e.target.value)}
               />
             </div>
-            <button
+           {/* <button
               onClick={() => setShowCustomerModal(true)}
               className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-green-600"
             >
               <UserPlus size={20} />
               Nuevo Cliente
-            </button>
+            </button>*/}
           </div>
 
           <div className="max-h-60 overflow-y-auto border rounded">
@@ -355,7 +453,7 @@ const handleCreateRental = async (event: React.FormEvent) => {
       {/* Paso 4: Confirmar y Crear Alquiler */}
       {selectedVehicle && selectedCustomer && (
         <div>
-          <h2 className="text-2xl font-semibold mb-4">4. Confirmar Alquiler</h2>
+          <h2 className="text-2xl font-semibold mb-4">5. Confirmar Alquiler</h2>
           <p className="text-xl font-bold">Total: ${calculateTotal()}</p>
 
               <button
