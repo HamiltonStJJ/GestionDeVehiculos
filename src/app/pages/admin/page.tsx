@@ -140,7 +140,20 @@ const Modal = ({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => 
 
 const VehiclePage = () => {
   // Datos predefinidos
-  const brands = ["Volkswagen", "Toyota", "Ford", "Chevrolet", "Honda", "Nissan"];
+const brandModels: { [key: string]: string[] } = {
+  Volkswagen: ["Golf", "Jetta", "Polo", "Tiguan", "Passat"],
+  Toyota: ["Corolla", "Camry", "Yaris", "RAV4", "Hilux"],
+  Ford: ["Focus", "Fiesta", "Explorer", "Mustang", "Escape"],
+  Chevrolet: ["Spark", "Cruze", "Malibu", "Tahoe", "Silverado"],
+  Honda: ["Civic", "Accord", "Fit", "CR-V", "Pilot"],
+  Nissan: ["Sentra", "Altima", "Versa", "Rogue", "Murano"],
+  BMW: ["3 Series", "5 Series", "X1", "X3", "X5"],
+  Audi: ["A3", "A4", "A6", "Q3", "Q5"],
+  Mercedes: ["C-Class", "E-Class", "GLA", "GLC", "GLE"],
+  Hyundai: ["Elantra", "Tucson", "Santa Fe", "Kona", "Sonata"],
+  Kia: ["Rio", "Seltos", "Sportage", "Sorento", "Telluride"],
+};
+const brands = [...Object.keys(brandModels)];
   const colors = ["Verde", "Blanco", "Negro", "Azul", "Rojo", "Plata"];
   const fuelTypes = ["Gasolina", "Diesel", "Híbrido", "Eléctrico"];
   const transmissions = ["Manual", "Automatica"];
@@ -152,6 +165,11 @@ const VehiclePage = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [availableTarifas, setAvailableTarifas] = useState<Tarifa[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState("");
+const [customBrand, setCustomBrand] = useState("");
+const [availableModels, setAvailableModels] = useState<string[]>([]);
+const [customModel, setCustomModel] = useState("");
+
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -181,7 +199,50 @@ const VehiclePage = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setEditingId(null);
+    setSelectedBrand("");
+    setCustomBrand("");
+    resetForm();
+
   };
+  const handleBrandChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const brand = e.target.value;
+  setSelectedBrand(brand);
+  setCustomBrand("");
+  setCustomModel("");
+
+  if (brand === "Otro") {
+    setAvailableModels([]);
+    setFormData((prev) => ({ ...prev, marca: "", modelo: "" }));
+  } else {
+    setAvailableModels(brandModels[brand] || []);
+    setFormData((prev) => ({ ...prev, marca: brand, modelo: "" }));
+  }
+};
+
+const handleModelChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const model = e.target.value;
+  setCustomModel("");
+
+  if (model === "Otro") {
+    setFormData((prev) => ({ ...prev, modelo: "" }));
+  } else {
+    setFormData((prev) => ({ ...prev, modelo: model }));
+  }
+};
+
+const handleCustomBrandChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const brand = e.target.value;
+  setCustomBrand(brand);
+  setFormData((prev) => ({ ...prev, marca: brand }));
+};
+
+const handleCustomModelChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const model = e.target.value;
+  setCustomModel(model);
+  setFormData((prev) => ({ ...prev, modelo: model }));
+};
+
 
   // Fetch vehicles from API
   useEffect(() => {
@@ -348,6 +409,8 @@ const handleChange = (
       tarifas: vehicle.tarifas.map((t) => t._id), // Extraer solo los IDs
       mantenimientos: vehicle.mantenimientos,
     });
+    setSelectedBrand(vehicle.marca);
+    setAvailableModels(brandModels[vehicle.marca] || []);
   };
 
   const resetForm = () => {
@@ -393,9 +456,31 @@ const handleChange = (
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <FormInput id="nombre" label="Nombre" name="nombre" value={formData.nombre} onChange={handleChange} />
-          <FormInput id="marca" label="Marca" name="marca" options={brands} value={formData.marca} onChange={handleChange} />
-          <FormInput id="modelo" label="Modelo" name="modelo" value={formData.modelo} onChange={handleChange} />
-          <FormInput id="anio" label="Año" name="anio" type="number" value={formData.anio} onChange={handleChange} />
+  {/* Campo Marca */}
+  <FormInput
+    id="marca"
+    label="Marca"
+    name="marca"
+    options={brands}
+    value={selectedBrand}
+    onChange={handleBrandChange}
+  />
+  
+
+  {/* Campo Modelo */}
+  <FormInput
+    id="modelo"
+    label="Modelo"
+    name="modelo"
+    options={[...availableModels]}
+    value={formData.modelo}
+    onChange={handleModelChange}
+    disabled={!selectedBrand || selectedBrand === "Otro"}
+  />
+ 
+
+  {/* Otros campos */}
+         <FormInput id="anio" label="Año" name="anio" type="number" value={formData.anio} onChange={handleChange} />
           <FormInput id="color" label="Color" name="color" options={colors} value={formData.color} onChange={handleChange} />
           {/* Componente de subida de imágenes */}
       <div className="col-span-full">
